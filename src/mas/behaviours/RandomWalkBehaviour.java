@@ -41,7 +41,7 @@ public class RandomWalkBehaviour extends TickerBehaviour{
 		if (myPosition!=""){
 			//List of observable from the agent's current position
 			List<Couple<String,List<Attribute>>> lobs=((mas.abstractAgent)this.myAgent).observe();//myPosition
-			System.out.println(this.myAgent.getLocalName()+" -- list of observables: "+lobs);
+			//System.out.println(this.myAgent.getLocalName()+" -- list of observables: "+lobs);
 
 //			//Little pause to allow you to follow what is going on
 			try {
@@ -100,7 +100,7 @@ public class RandomWalkBehaviour extends TickerBehaviour{
 			//If the agent picked (part of) the treasure
 			if (b){
 				List<Couple<String,List<Attribute>>> lobs2=((mas.abstractAgent)this.myAgent).observe();//myPosition
-				System.out.println("list of observables after picking "+lobs2);
+				//System.out.println("list of observables after picking "+lobs2);
 			}
 
 			//Random move from the current position

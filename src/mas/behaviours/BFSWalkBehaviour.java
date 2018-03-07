@@ -169,22 +169,23 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 			
 			
 			
-			System.out.println("Before calling nexttovisit, the neighbours are : "+graph.getNode(id).getNeighbours().toString()+" and listNeighbours : "+listNeighboursId.toString());
+			//System.out.println("Before calling nexttovisit, the neighbours are : "+graph.getNode(id).getNeighbours().toString()+" and listNeighbours : "+listNeighboursId.toString());
 			//String idToVisit = graph.getClosestUnvisited(id, new ArrayList<Couple<String,String>>()); 
 			
                         ArrayList<Node> pathToTheClosest = graph.getPathToClosestUnvisited(graph.getNode(id));
                         if(pathToTheClosest == null){
                             System.out.println("The graph has been fully explored ! List of nodes : \n");
                             fullyExplored = true ;
-                            graph.printNodes();
+                            //graph.printNodes();
                         }
                         else{
                             if(pathToTheClosest.get(0).getId().equalsIgnoreCase(id)){ //if the first node of the path is the current node, which is normally the case 
                             //TODO 26.2.: it shouldn't be the case, it is not very proper like this!
                                pathToTheClosest.remove(graph.getNode(id));
-                               //graph.printNodes();
+                               System.out.println("Exploration de "+myAgent.getLocalName());
+                               graph.printNodes();
                                ((mas.abstractAgent)this.myAgent).moveTo(pathToTheClosest.get(0).getId()); //we visit the first next node on the path
-				System.out.println("Node to visit : "+pathToTheClosest.get(0).getId());
+				//System.out.println("Node to visit : "+pathToTheClosest.get(0).getId());
                             }
                         }
             

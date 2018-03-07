@@ -160,7 +160,7 @@ public class Graph implements Serializable{
         */
         public ArrayList<Node> getPathToClosestUnvisited(Node currentNode){
             //toExplore is the FIFO of nodes to explore
-            System.out.println(currentNode.getNeighbours().toString());
+            //System.out.println(currentNode.getNeighbours().toString());
             ArrayList<Node> toExplore = (ArrayList<Node>) currentNode.getNeighbours().clone(); 
             //the father relation: the first composant represents the node we have reached, the second represents its father on the path
             HashMap<Node, Node> cameFrom = new HashMap<Node, Node>();
@@ -180,7 +180,7 @@ public class Graph implements Serializable{
                 
 		//if this element is an unvisited node, we return the path to it
                 if(!newVisited.getVisited()){
-                    System.out.println(cameFrom.toString());
+                    //System.out.println(cameFrom.toString());
                     return pathReconstruction(newVisited, cameFrom);
                 }
                 //else:
@@ -334,33 +334,32 @@ public String getClosestUnvisited2(String id, ArrayList<String> idsList) {
 		for(Node node2 : graph2.getAllNodes()) //loop for adding/updating the neighbours pointers
 		{	
 			int index = getNodeIndex((node2.getId()));
-			if(graph.get(index).getTime() < node2.getTime())
+			if(!graph.get(index).getVisited()) //node has not been already visited so not all the neighoburs are set//   
 			{
 				if(node2.getVisited())
 				{
 					graph.get(index).setContent(node2.getContentList());
 
-					if(!graph.get(index).getVisited()) //node has not been already visited so not all the neighoburs are set
-					{
-						graph.get(index).setVisited(true);
-						//adding neighoburs
-						for(Node neighbour2 : node2.getNeighbours())
+					graph.get(index).setVisited(true);
+						//adding neighbours
+						for(Node neighbour2 : node2.getNeighbours()) // TODO : modification de addneighbour pour ajouter deux arcs : node - neighobur et neighobur-nde
 						{
 							int index_neigh = getNodeIndex(neighbour2.getId());
-							if(index != -1) //the node of neighbour2 already exists
-							{
-								graph.get(index).addNeighbour(graph.get(index_neigh));
-							}
-							else
-							{
-
-							}
-
+							//if(index != -1) //the node of neighbour2 already exists
+							//{
+							graph.get(index).addNeighbour(graph.get(index_neigh));
+							//}
+							
 						}
-
-					}
 				}
 
+			}
+			else // we visited the node
+			{
+				if(node2.getVisited() && graph.get(index).getTime() < node2.getTime()) //content may have been changed 
+				{
+					graph.get(index).setContent(node2.getContentList());
+				}
 			}
 			
 		}

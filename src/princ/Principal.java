@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import mas.agents.BFSExploAgent;
+import env.EntityType;
 import env.Environment;
 import env.Environment.ENVtype;
 
@@ -32,7 +33,7 @@ public class Principal {
 
 		System.out.println("Hello !");
 		//0) Create the real environment and the observed one
-		env= new Environment(ENVtype.GRID_T,8,null);
+		env= new Environment(ENVtype.GRID_T,2,null);
 		//env= new Environment(ENVtype.DOROGOVTSEV_T,8,null);
 		//env=new Environment("ressources/map2017-2","ressources/map2017-config");
 		
@@ -228,7 +229,7 @@ public class Principal {
 		agentName="Agent1";
 		try {
 
-			Object[] objtab=new Object[]{env};//used to give informations to the agent
+			Object[] objtab=new Object[]{env, EntityType.AGENT_EXPLORER};//used to give informations to the agent
 			AgentController	ag=c.createNewAgent(agentName,BFSExploAgent.class.getName(),objtab);
 			agentList.add(ag);
 			System.out.println(agentName+" launched");
@@ -236,6 +237,21 @@ public class Principal {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
+		//Agent2 on container0
+				c = containerList.get("container0");
+				agentName="Agent2";
+				try {
+
+					Object[] objtab=new Object[]{env, EntityType.AGENT_EXPLORER};//used to give informations to the agent
+					AgentController	ag=c.createNewAgent(agentName,BFSExploAgent.class.getName(),objtab);
+					agentList.add(ag);
+					System.out.println(agentName+" launched");
+				} catch (StaleProxyException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 //
 ////
 		/*

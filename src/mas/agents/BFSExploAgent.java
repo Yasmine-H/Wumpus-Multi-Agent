@@ -3,6 +3,7 @@ package mas.agents;
 
 
 
+import env.EntityType;
 import env.Environment;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
@@ -10,13 +11,16 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import mas.abstractAgent;
 import mas.behaviours.BFSWalkBehaviour;
-import mas.behaviours.ReceiveGraph;
-import mas.behaviours.SendGraph;
+import mas.behaviours.ReceiveGraphBehaviour;
+import mas.behaviours.SendGraphBehaviour;
 import mas.graph.Graph;
 
 
 public class BFSExploAgent extends abstractAgent{
 
+	
+	public static final String SERVICE_EXP = "explorer";
+	
 	/**
 	 * 
 	 */
@@ -40,7 +44,7 @@ public class BFSExploAgent extends abstractAgent{
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
 		ServiceDescription sd = new ServiceDescription();
-		sd.setType("explorer");
+		sd.setType(SERVICE_EXP);
 		sd.setName(getLocalName());
 		dfd.addServices(sd);
 		try
@@ -56,9 +60,9 @@ public class BFSExploAgent extends abstractAgent{
 		
 		//get the parameters given into the object[]. In the current case, the environment where the agent will evolve
 		final Object[] args = getArguments();
-		if(args[0]!=null){
+		if(args!=null && args[0]!=null && args[1]!=null){
 
-			deployAgent((Environment) args[0]);
+			deployAgent((Environment) args[0], (EntityType) args[1]);
 
 		}else{
 			System.err.println("Malfunction during parameter's loading of agent"+ this.getClass().getName());
@@ -69,8 +73,8 @@ public class BFSExploAgent extends abstractAgent{
 		
 		//Add the behaviours
 		addBehaviour(new BFSWalkBehaviour(this, graph));
-		addBehaviour(new SendGraph(this, graph));
-		addBehaviour(new ReceiveGraph(this, graph));
+		addBehaviour(new SendGraphBehaviour(this, graph));
+		addBehaviour(new ReceiveGraphBehaviour(this, graph));
 		System.out.println("the agent "+this.getLocalName()+ " is started");
 
 	}

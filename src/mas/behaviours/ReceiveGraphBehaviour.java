@@ -4,9 +4,10 @@ import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.lang.acl.UnreadableException;
 import mas.graph.Graph;
 
-public class ReceiveGraph extends SimpleBehaviour{
+public class ReceiveGraphBehaviour extends SimpleBehaviour{
 
 	/**
 	 * 
@@ -20,7 +21,7 @@ public class ReceiveGraph extends SimpleBehaviour{
 	 *  
 	 */
 	
-	public ReceiveGraph (final Agent myagent, Graph graph) {
+	public ReceiveGraphBehaviour (final Agent myagent, Graph graph) {
 		super(myagent);
 		this.graph=graph;
 		//super(myagent);
@@ -36,6 +37,21 @@ public class ReceiveGraph extends SimpleBehaviour{
 		if(msg!=null)
 		{
 			// TODO 28.2 : fuse the current graph with the one received
+			System.out.println(">>Agent : "+myAgent.getLocalName()+"  new msg received "+msg);
+			try {
+				System.out.println(myAgent.getLocalName()+"******************MON GRAPHE AVANT FUSION");
+				graph.printNodes();
+				System.out.println(myAgent.getLocalName()+"******************GRAPHE RECU");
+				((Graph)msg.getContentObject()).printNodes();
+				graph.fusion(((Graph)msg.getContentObject()));
+				System.out.println(myAgent.getLocalName()+"******************NOUVEAU GRAPHE APRES FUSION");
+				graph.printNodes();
+				
+				
+			} catch (UnreadableException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		else
 		{

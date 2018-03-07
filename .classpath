@@ -16,5 +16,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/DedaleEtuFull2018/lib/dedale/dedale-full-0.2-doc.jar!/lib/dedale/doc"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/HAMDANI/workspace/Wumpus-Multi-Agent/lib/commons-codec-1.11/commons-codec-1.11.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

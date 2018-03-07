@@ -1,12 +1,17 @@
 package mas.graph;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import env.Attribute;
 
-public class Node implements Comparable{
+public class Node implements Comparable, Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4070241869411316876L;
 	private String id;
 	private ArrayList<Node> neighbours; //TODO 26.2. : ArrayList<String> changed to ArrayList<Node> - do all the modifications in related functions! 
 	private List<Attribute> contentList; //TODO 21.2. : trouver les types 
