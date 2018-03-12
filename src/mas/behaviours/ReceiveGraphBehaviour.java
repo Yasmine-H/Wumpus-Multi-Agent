@@ -30,7 +30,7 @@ public class ReceiveGraphBehaviour extends SimpleBehaviour{
 	@Override
 	public void action() {
 		String myPosition=((mas.abstractAgent)this.myAgent).getCurrentPosition();
-
+		System.out.println("************************ReceiveMessageBehaviour****************************");
 		MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
 		ACLMessage msg = myAgent.receive(mt);
 

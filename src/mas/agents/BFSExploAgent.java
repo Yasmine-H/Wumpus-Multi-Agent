@@ -5,6 +5,7 @@ package mas.agents;
 
 import env.EntityType;
 import env.Environment;
+import jade.core.behaviours.FSMBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -26,6 +27,10 @@ public class BFSExploAgent extends abstractAgent{
 	 */
 	private static final long serialVersionUID = -1784844593772918360L;
 
+	private static final String STATE_WALK = "Walk";
+	private static final String STATE_SEND = "SendMessage";
+	private static final String STATE_RECEIVE = "ReceiveMessage";
+	
 	private Graph graph;
 
 	/**
@@ -71,10 +76,37 @@ public class BFSExploAgent extends abstractAgent{
 		
 		graph = new Graph();
 		
-		//Add the behaviours
+		
+		//Creating a finite-state machine
+		
+		FSMBehaviour fsm = new FSMBehaviour(this) {
+			public int onEnd() {
+				System.out.println("FSM behaviour ended");
+				myAgent.doDelete(); // TODO 12.03 : Is it supposedto be here or on takeDown function ? 
+				return super.onEnd();
+			}
+
+		};
+		
+		//Behaviours/States
+		fsm.registerFirstState(new BFSWalkBehaviour(this, graph), STATE_WALK);
+		fsm.registerState(new SendGraphBehaviour(this, graph), STATE_SEND);
+		fsm.registerState(new ReceiveGraphBehaviour(this, graph), STATE_RECEIVE);
+		
+		
+		//Transitions
+		fsm.registerDefaultTransition(STATE_WALK, STATE_SEND);
+		fsm.registerDefaultTransition(STATE_SEND, STATE_RECEIVE);
+		fsm.registerDefaultTransition(STATE_RECEIVE, STATE_WALK);
+						
+		addBehaviour(fsm);
+
+		
+		/*
 		addBehaviour(new BFSWalkBehaviour(this, graph));
 		addBehaviour(new SendGraphBehaviour(this, graph));
 		addBehaviour(new ReceiveGraphBehaviour(this, graph));
+		*/
 		System.out.println("the agent "+this.getLocalName()+ " is started");
 
 	}

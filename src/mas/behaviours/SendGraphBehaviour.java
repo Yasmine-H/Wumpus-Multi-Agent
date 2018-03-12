@@ -36,7 +36,7 @@ public class SendGraphBehaviour extends SimpleBehaviour{
 	@Override
 	public void action() {
 		String myPosition=((mas.abstractAgent)this.myAgent).getCurrentPosition();
-
+		System.out.println("************************SendMessageBehaviour****************************");
 		//send graph for the 2-neighbours
 		ACLMessage msg=new ACLMessage(ACLMessage.INFORM);
 		msg.setSender(this.myAgent.getAID());
