@@ -89,15 +89,16 @@ public class BFSExploAgent extends abstractAgent{
 		};
 		
 		//Behaviours/States
-		fsm.registerFirstState(new BFSWalkBehaviour(this, graph), STATE_WALK);
-		fsm.registerState(new SendGraphBehaviour(this, graph), STATE_SEND);
-		fsm.registerState(new ReceiveGraphBehaviour(this, graph), STATE_RECEIVE);
+		//fsm.registerFirstState(new BFSWalkBehaviour(this, graph), STATE_WALK);
+		fsm.registerFirstState(new SendGraphBehaviour(this, graph), STATE_SEND);
+		fsm.registerLastState(new ReceiveGraphBehaviour(this, graph), STATE_RECEIVE);
 		
 		
 		//Transitions
-		fsm.registerDefaultTransition(STATE_WALK, STATE_SEND);
+		//fsm.registerDefaultTransition(STATE_WALK, STATE_SEND);
 		fsm.registerDefaultTransition(STATE_SEND, STATE_RECEIVE);
-		fsm.registerDefaultTransition(STATE_RECEIVE, STATE_WALK);
+		fsm.registerDefaultTransition(STATE_RECEIVE, STATE_SEND);		
+		//fsm.registerDefaultTransition(STATE_RECEIVE, STATE_WALK);
 						
 		addBehaviour(fsm);
 
