@@ -60,7 +60,43 @@ LA SEMAINE 4 :
  
  SEMAINE 6 : FIN INTERBLOCAGE, DEBUT RAMASSAGE TRÉSOR
  
- TODO : Ajouter un nouveau agent qui ramasse des trésors. 
-                                
+ TODO : 
+ 1/ L'INTERBLOCAGE - cf. le doc
+ 2/ BFSExploration une fois il a fini - définir nouveau comportement etc. (soit nouveau comportement, soit if - else dans BFS)
+                                      - ? informer les autres qu'on a fini avec un flood? 
+                                      - on ne propose plus d'un graphe, juste la liste de contenu qui a changé
+                                      - s'échanger la position du Golem 
+                                      - chasser le Golem !
+3/ Mettre en plase la machine a état (définir déjà toutes les classes de behaviours, même si elles sont vides pour l'instant, 
+  pour avoir la machine)
+ 
+4/ Ajouter un nouveau agent qui ramasse des trésors, silo, leurs behavoiurs (et avancer si possible).
+ 
+ 
+ 
+ Idées: 
+      - Comportement de l'explorateur une fois la carte est complète:
+        - réduire le temps qu'il passe à l'échange des graphes (attente de réponses...)
+        - chasser le Golem
+        - se mettre aux endroits stratégiques du graphes (partage des zones)
+      
+      - Agent SILO :
+        - Il ne bouge pas trop pour que les gens sache où il est
+        - Il est là où il y a beaucoup de trésors (les agents sont probablements pas loin), ou il y a des trésors trop lourds 
+          (pour que l'agent peut vider son sac rapidement)
+        - La plus grande priorité : il faut pas aller dans les wones faiblement connectées (couloirs etc.) - il faut surtout 
+          pas bloquer l'accès aux trésors, générer des interblocages... !!!
+      
+      - Agent ramasseur :
+        - Dans ça carte, une fonction d'utilité de trésors (priorité aux trésors qu'il peut collecter), valeurs faibles pour 
+          les trésors qui ne lui intéressent pas (il vas pas passer par là, il peut juste informer les autres sur leurs présence)
+        - La strategie de choix d'un trésor à ramasser
+        - Stratégie comment vider son sac
+        - Machine à état pour ramasseur
+        
+      - Machine à états:
+        QUESTION : Faut-il partir de la supposition que les autres agents sont fiables ou pas? Peut-on laisser tomber des contract?
+                   "Définir" la priorité des actions.
+                   
 -------------------------------------------------------------------------------------------------------------------------------
 SEMAINE 7 : FIN RAMASSAGE TRÉSORS !!!
