@@ -66,9 +66,14 @@ public class Node implements Comparable, Serializable{
 	public void addNeighbour(Node neighbour){
 		if (!neighbours.contains(neighbour)){
 			neighbours.add(neighbour);
+			neighbour.addNeighbour(this); //TODO: 13.3. tell to Yasmine
 		}
 		updateTime();
 		//Collections.sort(neighbours); //normaly we should not nedd this function
+	}
+
+	public void clearNeighbours() {
+		this.neighbours.clear();
 	}
 	
 	private void updateTime()
