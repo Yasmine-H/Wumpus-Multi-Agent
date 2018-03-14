@@ -317,7 +317,7 @@ public String getClosestUnvisited2(String id, ArrayList<String> idsList) {
 		}
 	}
 	
-	public void fusion(Graph graph2)
+		public void fusion(Graph graph2)
 	{
 		
 		for(Node node2 : graph2.getAllNodes())//loop for adding the new nodes
@@ -327,6 +327,24 @@ public String getClosestUnvisited2(String id, ArrayList<String> idsList) {
 			if(index == -1) //node doesn't exist in the graph
 			{
 				graph.add(node2.clone()); // WARNinG NEIGHBOUURSSS pointeurs
+				//TODO 13.3:
+				//We need to loop over all neighbours of this node in the graph2, and remove all neighbours of the copy
+				// .... if the neighbour exists in the first graph, we add it into the list of neighbours 
+				// .... else, we need to create the clone of the neighbour and add it into the the list of neighbours of the node we've just created
+				// ... WARNING : By doing this, we risk to loose the neighbours of the neighbour 
+				// ... two solutions proposed : 	- if the neighbour does not exist in the first graph, we don't add it for the moment; 
+				//									  every time the new node is created, we add it as a neighbour of all its neighbours 
+				//									- recursion??? I don't see how, the first solution is prefered
+				
+				//first of all, we remove all the neighbours of the clone
+				getNode(node2.getId()).clearNeighbours();
+				for(Node neighbour: node2.getNeighbours()) {
+					int i = getNodeIndex(neighbour.getId());
+					if(i != -1) { //the node exists in the original graph 
+						getNode(node2.getId()).addNeighbour(getNode(i)); //we add it as a neighbour of if
+					}
+					//else : we do nothing
+				}
 			}
 			
 		}
@@ -364,40 +382,7 @@ public String getClosestUnvisited2(String id, ArrayList<String> idsList) {
 			
 		}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 
 }
