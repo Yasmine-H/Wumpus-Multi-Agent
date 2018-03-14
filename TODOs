@@ -90,13 +90,25 @@ LA SEMAINE 4 :
       - Agent ramasseur :
         - Dans ça carte, une fonction d'utilité de trésors (priorité aux trésors qu'il peut collecter), valeurs faibles pour 
           les trésors qui ne lui intéressent pas (il vas pas passer par là, il peut juste informer les autres sur leurs présence)
-        - La strategie de choix d'un trésor à ramasser
+        - La strategie de choix d'un trésor à ramasser (plus bas)
         - Stratégie comment vider son sac
         - Machine à état pour ramasseur
         
       - Machine à états:
         QUESTION : Faut-il partir de la supposition que les autres agents sont fiables ou pas? Peut-on laisser tomber des contract?
                    "Définir" la priorité des actions.
+      
+      - Stratégie de collecte :
+        - Soit ils se partegent les zones, après, l'agent préférencie les trésors dans sa zone
+           + : pas d'interblocages et moins de concurrence, on peut prédire ce que font les autres
+           - : ça ne prend pas en compte la position du Golem, ni du Silo, il ne sait pas quoi faire une fois il finit sa zone
+        - Fonction d'utilité des trésors à ramasser 
+           - prend en compte le type de trésor, la volume (en fonction de nos disponobilité), position (distance, couloir,
+             Silo, d'autres agents à proximité, Golem)
+           + : on ramasse les trésors les plus intéressants 
+           - : comme tout le monde a la même fonction d'utilité, si elle est mal définie, il y a un risque que tout le monde se 
+               lance vers le même trésor -> interblocages, concurrence, répartition déséquilibrée... 
+        - Il va vers le Silo et il essaie de ramasser le plus possible sur le chemin 
                    
 -------------------------------------------------------------------------------------------------------------------------------
 SEMAINE 7 : FIN RAMASSAGE TRÉSORS !!!
