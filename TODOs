@@ -3,17 +3,10 @@ LA SEMAINE 3:
       noeud - une pièce dans un labirynt, on connait son id, ses voisins, son contenu, le temps de la dernière mise à jour,
               son état (visité ou vu mais pas encore visité)
               
-              TODO : Si on ajoute des voisins à un noued A, il faut aussi ajouter A dans la liste des voisins de ses voisins 
-                     (la rélation "être voisin" étant symmétrique)  ... et réfléchir si ceci est pertinent ou pas (à priori oui, 
-                     ça nous coûte plus de temps quand on crée le graphe, mais on a plus d'informations ce qui peut faciliter 
-                     des parcours)
-              
-              Doit être sérialisable
+                          
       graphe - une liste de noeuds. La classe contient aussi toutes les fonctions liées à la manipulation du graphe, 
                ainsi que les algorithmes de graphe (des parcours, fusion de deux graphes etc.)
-               
-               TODO : gérer l'histoire des pointeurs aux voisins dans la fonction de fusion des graphes
-                      (je ne me rappelle plus si on y fait des clones ou pas, il faut y revenir et gérer ça)
+       
                
 - parcours monoagent: 
       solution proposée : l'agent avance dans un graphe dès qu'il peut. Une fois tous les noeuds accessibles sont visités, 
@@ -63,5 +56,11 @@ LA SEMAINE 4 :
   
   A LA LIMITE : Partage des zones.
   
-                
+ -------------------------------------------------------------------------------------------------------------------------------
+ 
+ SEMAINE 6 : FIN INTERBLOCAGE, DEBUT RAMASSAGE TRÉSOR
+ 
+ TODO : Ajouter un nouveau agent qui ramasse des trésors. 
                                 
+-------------------------------------------------------------------------------------------------------------------------------
+SEMAINE 7 : FIN RAMASSAGE TRÉSORS !!!
