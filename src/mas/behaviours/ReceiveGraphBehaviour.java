@@ -65,7 +65,8 @@ public class ReceiveGraphBehaviour extends SimpleBehaviour{
 	@Override
 	public boolean done() {
 		// TODO Auto-generated method stub
-		return false;
+		//return false;
+		return true;
 	}
 
 }

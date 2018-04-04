@@ -1,1 +1,1 @@
-http://134.157.122.22:7778/acc
+http://HAMDANI-PC:7778/acc

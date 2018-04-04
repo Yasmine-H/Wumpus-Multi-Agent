@@ -12,6 +12,14 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import mas.abstractAgent;
 import mas.behaviours.BFSWalkBehaviour;
+import mas.behaviours.DeadlockListenerBehaviour;
+import mas.behaviours.DeadlockReportBehaviour;
+import mas.behaviours.DeadlockSolvingBehaviour;
+import mas.behaviours.GraphAcknowledgmentListener;
+import mas.behaviours.GraphPropositionBehaviour;
+import mas.behaviours.GraphReceiversListenerBehaviour;
+import mas.behaviours.GraphReceptionBehaviour;
+import mas.behaviours.GraphReceptionListenerBehaviour;
 import mas.behaviours.ReceiveGraphBehaviour;
 import mas.behaviours.SendGraphBehaviour;
 import mas.graph.Graph;
@@ -28,8 +36,15 @@ public class BFSExploAgent extends abstractAgent{
 	private static final long serialVersionUID = -1784844593772918360L;
 
 	private static final String STATE_WALK = "Walk";
-	private static final String STATE_SEND = "SendMessage";
-	private static final String STATE_RECEIVE = "ReceiveMessage";
+	private static final String STATE_DEADLOCK_REPORT = "Deadlock Report";
+	private static final String STATE_DEADLOCK_LISTENER = "Deadlock Listener";
+	private static final String STATE_DEADLOCK_SOLVING = "Deadlock Solving";
+	private static final String STATE_GRAPH_PROPOSITION = "Graph Proposition";
+	private static final String STATE_GRAPH_RECEIVERS_LISTENER = "Graph Receivers Listener"; //waits for agents interested in getting the graph
+	private static final String STATE_GRAPH_TRANSMISSION = "Graph Transmission";
+	private static final String STATE_GRAPH_AKN_LISTENER = "Graph Reception Acknowledgment Listener";
+	private static final String STATE_GRAPH_SENDERS_LISTENER = "Graph Senders Listener"; //waits for agents to propose their graphs
+	private static final String STATE_GRAPH_RECEPTION = "Graph Reception";
 	
 	private Graph graph;
 
@@ -89,16 +104,47 @@ public class BFSExploAgent extends abstractAgent{
 		};
 		
 		//Behaviours/States
-		//fsm.registerFirstState(new BFSWalkBehaviour(this, graph), STATE_WALK);
-		fsm.registerFirstState(new SendGraphBehaviour(this, graph), STATE_SEND);
-		fsm.registerLastState(new ReceiveGraphBehaviour(this, graph), STATE_RECEIVE);
+		fsm.registerFirstState(new BFSWalkBehaviour(this, graph), STATE_WALK);
+		fsm.registerState(new DeadlockReportBehaviour(this), STATE_DEADLOCK_REPORT);
+		fsm.registerState(new DeadlockListenerBehaviour(this), STATE_DEADLOCK_LISTENER);
+		fsm.registerState(new DeadlockSolvingBehaviour(this, graph), STATE_DEADLOCK_SOLVING);
+		fsm.registerState(new GraphPropositionBehaviour(this, graph), STATE_GRAPH_PROPOSITION);
+		fsm.registerState(new GraphReceiversListenerBehaviour(this, graph), STATE_GRAPH_RECEIVERS_LISTENER);
+		fsm.registerState(new SendGraphBehaviour(this, graph), STATE_GRAPH_TRANSMISSION);
+		fsm.registerState(new GraphAcknowledgmentListener(this, graph), STATE_GRAPH_AKN_LISTENER);
+		fsm.registerState(new GraphReceptionListenerBehaviour(this, graph), STATE_GRAPH_SENDERS_LISTENER);
+		fsm.registerState(new ReceiveGraphBehaviour(this, graph), STATE_GRAPH_RECEPTION);
+		
 		
 		
 		//Transitions
-		//fsm.registerDefaultTransition(STATE_WALK, STATE_SEND);
-		fsm.registerDefaultTransition(STATE_SEND, STATE_RECEIVE);
-		fsm.registerDefaultTransition(STATE_RECEIVE, STATE_SEND);		
-		//fsm.registerDefaultTransition(STATE_RECEIVE, STATE_WALK);
+		//After moving 
+		fsm.registerTransition(STATE_WALK, STATE_DEADLOCK_REPORT, BFSWalkBehaviour.BLOCKED);
+		fsm.registerTransition(STATE_WALK, STATE_GRAPH_PROPOSITION, BFSWalkBehaviour.MOVED);		
+		
+		//Deadlock conflict
+		fsm.registerDefaultTransition(STATE_DEADLOCK_REPORT, STATE_DEADLOCK_LISTENER);
+		fsm.registerTransition(STATE_DEADLOCK_LISTENER, STATE_DEADLOCK_LISTENER, DeadlockListenerBehaviour.WAITING);
+		fsm.registerTransition(STATE_DEADLOCK_LISTENER, STATE_DEADLOCK_SOLVING, DeadlockListenerBehaviour.ANSWER_RECEIVED);
+		fsm.registerTransition(STATE_DEADLOCK_LISTENER, STATE_WALK, DeadlockListenerBehaviour.NO_ANSWER);
+		fsm.registerTransition(STATE_DEADLOCK_SOLVING, STATE_DEADLOCK_REPORT, BFSWalkBehaviour.BLOCKED);
+		fsm.registerTransition(STATE_DEADLOCK_SOLVING, STATE_GRAPH_PROPOSITION, BFSWalkBehaviour.MOVED);
+		
+		//Graph Transmission TODO 03.04.2018 : be careful of async msgs, are we sure this will work ? Did we forget some kind of msgs ?
+		fsm.registerDefaultTransition(STATE_GRAPH_PROPOSITION, STATE_GRAPH_RECEIVERS_LISTENER);
+		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_RECEIVERS_LISTENER, GraphReceiversListenerBehaviour.WAITING);
+		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_TRANSMISSION, GraphReceiversListenerBehaviour.RECEIVERS);
+		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphReceiversListenerBehaviour.NO_RECEIVERS);
+		fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_GRAPH_AKN_LISTENER);
+		fsm.registerTransition(STATE_GRAPH_AKN_LISTENER, STATE_GRAPH_AKN_LISTENER, GraphAcknowledgmentListener.WAITING);
+		fsm.registerTransition(STATE_GRAPH_AKN_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphAcknowledgmentListener.COMPLETED);
+		
+		//Graph Reception
+		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphReceptionBehaviour.WAITING);
+		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_GRAPH_RECEPTION, GraphReceptionBehaviour.SENDERS);
+		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_WALK, GraphReceptionBehaviour.NO_SENDERS);
+		fsm.registerDefaultTransition(STATE_GRAPH_RECEPTION, STATE_WALK);
+		
 						
 		addBehaviour(fsm);
 

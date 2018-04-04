@@ -28,10 +28,13 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 	
 	
 	private static final long serialVersionUID = 9088209402507795290L;
+	
+	public static final int MOVED = 1;
+	public static final int BLOCKED = 0;
 	//private ArrayList<Node> graph;
 	private Graph graph;
 	private boolean fullyExplored = false;
-	
+	private boolean moved = false;
 	
 	
 	public BFSWalkBehaviour (final mas.abstractAgent myagent, Graph graph /*ArrayList<Node> graph*/) {
@@ -184,7 +187,7 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
                                pathToTheClosest.remove(graph.getNode(id));
                                System.out.println("Exploration de "+myAgent.getLocalName());
                                graph.printNodes();
-                               ((mas.abstractAgent)this.myAgent).moveTo(pathToTheClosest.get(0).getId()); //we visit the first next node on the path
+                               moved = ((mas.abstractAgent)this.myAgent).moveTo(pathToTheClosest.get(0).getId()); //we visit the first next node on the path
 				//System.out.println("Node to visit : "+pathToTheClosest.get(0).getId());
                             }
                         }
@@ -201,7 +204,10 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 	
 	public int onEnd(){
 		// TODO 28.2 : FSMBehaviour start moving to inform the other agents
-		return 0;
+		if(moved)
+			return MOVED;
+		else
+			return BLOCKED;
 	}
 
 }
