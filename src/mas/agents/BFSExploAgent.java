@@ -3,8 +3,11 @@ package mas.agents;
 
 
 
+import java.util.ArrayList;
+
 import env.EntityType;
 import env.Environment;
+import jade.core.AID;
 import jade.core.behaviours.FSMBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
@@ -12,14 +15,10 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import mas.abstractAgent;
 import mas.behaviours.BFSWalkBehaviour;
-import mas.behaviours.DeadlockListenerBehaviour;
-import mas.behaviours.DeadlockReportBehaviour;
-import mas.behaviours.DeadlockSolvingBehaviour;
 import mas.behaviours.GraphAcknowledgmentListener;
 import mas.behaviours.GraphPropositionBehaviour;
 import mas.behaviours.GraphReceiversListenerBehaviour;
-import mas.behaviours.GraphReceptionBehaviour;
-import mas.behaviours.GraphReceptionListenerBehaviour;
+import mas.behaviours.GraphSendersListenerBehaviour;
 import mas.behaviours.ReceiveGraphBehaviour;
 import mas.behaviours.SendGraphBehaviour;
 import mas.graph.Graph;
@@ -47,7 +46,8 @@ public class BFSExploAgent extends abstractAgent{
 	private static final String STATE_GRAPH_RECEPTION = "Graph Reception";
 	
 	private Graph graph;
-
+	private ArrayList<AID> receivers;
+	private ArrayList<AID> senders;
 	/**
 	 * This method is automatically called when "agent".start() is executed.
 	 * Consider that Agent is launched for the first time. 
@@ -90,8 +90,8 @@ public class BFSExploAgent extends abstractAgent{
 		}
 		
 		graph = new Graph();
-		
-		
+		receivers = new ArrayList<>();
+		senders = new ArrayList<>();
 		//Creating a finite-state machine
 		
 		FSMBehaviour fsm = new FSMBehaviour(this) {
@@ -103,6 +103,7 @@ public class BFSExploAgent extends abstractAgent{
 
 		};
 		
+		/*
 		//Behaviours/States
 		fsm.registerFirstState(new BFSWalkBehaviour(this, graph), STATE_WALK);
 		fsm.registerState(new DeadlockReportBehaviour(this), STATE_DEADLOCK_REPORT);
@@ -145,7 +146,54 @@ public class BFSExploAgent extends abstractAgent{
 		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_WALK, GraphReceptionBehaviour.NO_SENDERS);
 		fsm.registerDefaultTransition(STATE_GRAPH_RECEPTION, STATE_WALK);
 		
-						
+			
+		*/
+		//test
+		
+		fsm.registerFirstState(new BFSWalkBehaviour(this, graph), STATE_WALK);
+		fsm.registerState(new GraphPropositionBehaviour(this, graph), STATE_GRAPH_PROPOSITION);
+		fsm.registerState(new GraphReceiversListenerBehaviour(this, graph, receivers), STATE_GRAPH_RECEIVERS_LISTENER);
+		fsm.registerState(new SendGraphBehaviour(this, graph, receivers), STATE_GRAPH_TRANSMISSION);
+		fsm.registerState(new GraphAcknowledgmentListener(this, graph), STATE_GRAPH_AKN_LISTENER);
+		fsm.registerState(new GraphSendersListenerBehaviour(this, graph, senders), STATE_GRAPH_SENDERS_LISTENER);
+		fsm.registerState(new ReceiveGraphBehaviour(this, graph, senders), STATE_GRAPH_RECEPTION);
+		
+		
+		
+		//Transitions
+		//After moving 
+		fsm.registerDefaultTransition(STATE_WALK, STATE_GRAPH_PROPOSITION);		
+		
+		//Graph Transmission TODO 03.04.2018 : be careful of async msgs, are we sure this will work ? Did we forget some kind of msgs ?
+
+		fsm.registerDefaultTransition(STATE_GRAPH_PROPOSITION, STATE_GRAPH_RECEIVERS_LISTENER);
+		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphSendersListenerBehaviour.SENDERS_EMPTY);
+		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_TRANSMISSION, GraphSendersListenerBehaviour.SENDERS_NOT_EMPTY);
+		fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_GRAPH_AKN_LISTENER);
+		fsm.registerDefaultTransition(STATE_GRAPH_AKN_LISTENER, STATE_GRAPH_SENDERS_LISTENER);
+		
+		
+		fsm.registerDefaultTransition(STATE_GRAPH_PROPOSITION, STATE_GRAPH_SENDERS_LISTENER);
+		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_WALK, GraphSendersListenerBehaviour.SENDERS_EMPTY);
+		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_GRAPH_RECEPTION, GraphSendersListenerBehaviour.SENDERS_NOT_EMPTY);
+		fsm.registerDefaultTransition(STATE_GRAPH_RECEPTION, STATE_WALK); 
+		
+		/*fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_RECEIVERS_LISTENER, GraphReceiversListenerBehaviour.WAITING);
+		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_TRANSMISSION, GraphReceiversListenerBehaviour.RECEIVERS);
+		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphReceiversListenerBehaviour.NO_RECEIVERS);
+		/*fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_GRAPH_AKN_LISTENER);
+		fsm.registerTransition(STATE_GRAPH_AKN_LISTENER, STATE_GRAPH_AKN_LISTENER, GraphAcknowledgmentListener.WAITING);
+		fsm.registerTransition(STATE_GRAPH_AKN_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphAcknowledgmentListener.COMPLETED);
+		
+		
+		//Graph Reception
+		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphReceptionBehaviour.WAITING);
+		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_GRAPH_RECEPTION, GraphReceptionBehaviour.SENDERS);
+		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_WALK, GraphReceptionBehaviour.NO_SENDERS);
+		fsm.registerDefaultTransition(STATE_GRAPH_RECEPTION, STATE_WALK);
+		*/
+		
+		
 		addBehaviour(fsm);
 
 		

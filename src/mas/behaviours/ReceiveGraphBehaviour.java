@@ -1,5 +1,8 @@
 package mas.behaviours;
 
+import java.util.ArrayList;
+
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -7,38 +10,47 @@ import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 import mas.graph.Graph;
 
+
+/**
+ * Waits for the graphs he asked for and perform a fusion between his and the ones he receives. 
+ * Sends an acknowledgement to the sender once the fusion is completed. 
+ */
+
+
 public class ReceiveGraphBehaviour extends SimpleBehaviour{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2058134622078521998L;
-
-	private Graph graph;
-	/**
-	 * An agent tries to contact its friend and to give him its current position
-	 * @param myagent the agent who posses the behaviour
-	 *  
-	 */
 	
-	public ReceiveGraphBehaviour (final Agent myagent, Graph graph) {
+	private static final long serialVersionUID = -2058134622078521998L;
+	
+	private Graph graph;
+	private ArrayList<AID> senders;
+	private int timer = 0 ;
+	private int time_limit = 3; //TODO 5/04/2018: define the time limit properly
+	
+	
+	
+	public ReceiveGraphBehaviour (final Agent myagent, Graph graph, ArrayList<AID> senders) {
 		super(myagent);
 		this.graph=graph;
-		//super(myagent);
+		this.senders=senders;
+		this.time_limit = senders.size()+2;
+		
 	}
 
 	@Override
 	public void action() {
-		String myPosition=((mas.abstractAgent)this.myAgent).getCurrentPosition();
-		System.out.println("************************ReceiveMessageBehaviour****************************");
-		MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+		
+		System.out.println("************************ReceiveGraphBehaviour****************************");
+		MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CONFIRM); // TODO 05/04/2018: what if there were other types of msgs.confirm and the one wetreated here wasn't the right one (and we would remove it from the stack) 
 		ACLMessage msg = myAgent.receive(mt);
 
-		if(msg!=null)
+		if(msg!=null && senders.contains(msg.getSender())) // we only take the messages from the senders we're interested in
 		{
 			// TODO 28.2 : fuse the current graph with the one received
 			System.out.println(">>Agent : "+myAgent.getLocalName()+"  new msg received "+msg);
+			
 			try {
+				//Graph fusion
 				System.out.println(myAgent.getLocalName()+"******************MON GRAPHE AVANT FUSION");
 				graph.printNodes();
 				System.out.println(myAgent.getLocalName()+"******************GRAPHE RECU");
@@ -46,17 +58,30 @@ public class ReceiveGraphBehaviour extends SimpleBehaviour{
 				graph.fusion(((Graph)msg.getContentObject()));
 				System.out.println(myAgent.getLocalName()+"******************NOUVEAU GRAPHE APRES FUSION");
 				graph.printNodes();
+				senders.remove(msg.getSender());
+				
+				//reply with an acknowledgement to the sender
+				
+				ACLMessage ackn=new ACLMessage(ACLMessage.CONFIRM);
+				ackn.setSender(this.myAgent.getAID());
+				ackn.addReceiver(msg.getSender());
+				ackn.setContent(GraphAcknowledgmentListener.MSG_GRAPH_RECEIVED);
+				((mas.abstractAgent)this.myAgent).sendMessage(ackn);
+				//System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");
 				
 				
 			} catch (UnreadableException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+			timer = 0;
 		}
 		else
 		{
-			// stop the conversation and do something else
+			timer++;
+			// TODO 5/04/2018: ?
 		}
+		timer++;
 		
 	}
 
@@ -64,9 +89,14 @@ public class ReceiveGraphBehaviour extends SimpleBehaviour{
 
 	@Override
 	public boolean done() {
-		// TODO Auto-generated method stub
-		//return false;
-		return true;
+		return (senders.isEmpty() || timer==time_limit);
+	}
+	
+	@Override
+	public int onEnd() {
+		timer = 0;
+		
+		return super.onEnd();
 	}
 
 }

@@ -47,6 +47,6 @@ public class DeadlockListenerBehaviour extends SimpleBehaviour{
 				return NO_ANSWER;
 		}
 		else
-			return WAITING;
+			return WAITING; // TODO : is it necessary ??
 	}
 }

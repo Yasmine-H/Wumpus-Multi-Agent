@@ -52,6 +52,10 @@ public class Graph implements Serializable{
                 graph.add(node);
             }
         }
+        
+        public int size(){
+        	return graph.size();
+        }
         /*
 	public void addNode(Node node)
 	{

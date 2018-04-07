@@ -198,8 +198,9 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 
 	@Override
 	public boolean done() {
-		// TODO Auto-generated method stub
-		return fullyExplored;
+		// TODO 
+		//return fullyExplored;
+		return true;
 	}
 	
 	public int onEnd(){
