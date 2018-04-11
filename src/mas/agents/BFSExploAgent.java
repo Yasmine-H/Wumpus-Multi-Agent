@@ -107,7 +107,24 @@ public class BFSExploAgent extends abstractAgent{
 		senders = new ArrayList<>();
 		interblocageMessage = new ACLMessage(ACLMessage.REQUEST);
 		
+		DFAgentDescription[] result;
+		try {
+			result = DFService.search(this, dfd);
+			for(int i=0; i<result.length; i++)
+			{
+				System.out.println("My AID is "+this.getAID() +" and I want to send to "+result[i].getName());
+				if(!result[i].getName().equals(this.getAID()))
+				{
+					receivers.add(result[i].getName());
+				}
+			}
+
+		} catch (FIPAException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
+				
 		//Creating a finite-state machine
 		
 		FSMBehaviour fsm = new FSMBehaviour(this) {
@@ -176,14 +193,12 @@ public class BFSExploAgent extends abstractAgent{
 		
 		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)
 		fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, interblocageMessage), STATE_START_INTERBLOCAGE);
-<<<<<<< HEAD
-		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers), STATE_INTERBLOCAGE_LISTENER);
-=======
-		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, interblocageMessage), STATE_INTERBLOCAGE_LISTENER);
->>>>>>> 857699c9e56834f56fbf11eeffefd8499fe512d4
+
+		fsm.registerLastState(new InterblocageListenerBehaviour(this, graph, receivers, interblocageMessage), STATE_INTERBLOCAGE_LISTENER);
+		//TODO 11.4.2018 : LAST ATTENTION
 		fsm.registerState(new CheckMailBoxBehaviour(this, STATE_WALK), STATE_CHECK_MAILBOX);
 		
-		
+		/*
 		
 		//Transitions
 		//After moving 
@@ -219,20 +234,26 @@ public class BFSExploAgent extends abstractAgent{
 		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_WALK, GraphReceptionBehaviour.NO_SENDERS);
 		fsm.registerDefaultTransition(STATE_GRAPH_RECEPTION, STATE_WALK);
 		*/
+		
+		fsm.registerDefaultTransition(STATE_WALK, STATE_START_INTERBLOCAGE);
+		//fsm.registerDefaultTransition(STATE_START_INTERBLOCAGE, STATE_WALK);
 		fsm.registerDefaultTransition(STATE_START_INTERBLOCAGE, STATE_INTERBLOCAGE_LISTENER);
-		fsm.registerTransition(STATE_INTERBLOCAGE_LISTENER, STATE_WALK, InterblocageListenerBehaviour.HAS_PRIORITY);
+		/*fsm.registerTransition(STATE_INTERBLOCAGE_LISTENER, STATE_WALK, InterblocageListenerBehaviour.HAS_PRIORITY);
 		fsm.registerTransition(STATE_INTERBLOCAGE_LISTENER, STATE_CHECK_MAILBOX, InterblocageListenerBehaviour.NO_RESPONSE);
 		fsm.registerTransition(STATE_INTERBLOCAGE_LISTENER, STATE_GIVES_PRIORITY, InterblocageListenerBehaviour.GIVES_PRIORITY);
 		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_WALK, CheckMailBoxBehaviour.GOTO_STATE_WALK);
-		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_PROPOSITION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_PROPOSITION);
+		//fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_PROPOSITION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_PROPOSITION);
 		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_INTERBLOCAGE_RESOLUTION, CheckMailBoxBehaviour.GOTO_STATE_INTERBLOCAGE_RESOLUTION);
-		
+		fsm.registerDefaultTransition(STATE_INTERBLOCAGE_RESOLUTION, STATE_CHECK_MAILBOX); //, 1); //has priority
+//		fsm.registerTransition(STATE_INTERBLOCAGE_RESOLUTION,  , event);
+		*/
 		addBehaviour(fsm);
 
 		
-		/*
-		addBehaviour(new BFSWalkBehaviour(this, graph));
-		addBehaviour(new SendGraphBehaviour(this, graph));
+		
+		//addBehaviour(new SendInterblocageStartMessageBehaviour(this, graph, null, null));
+		//addBehaviour(new BFSWalkBehaviour(this, graph));
+		/*addBehaviour(new SendGraphBehaviour(this, graph));
 		addBehaviour(new ReceiveGraphBehaviour(this, graph));
 		*/
 		System.out.println("the agent "+this.getLocalName()+ " is started");

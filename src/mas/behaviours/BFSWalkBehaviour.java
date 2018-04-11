@@ -179,12 +179,7 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 			
 			//System.out.println("Before calling nexttovisit, the neighbours are : "+graph.getNode(id).getNeighbours().toString()+" and listNeighbours : "+listNeighboursId.toString());
 			//String idToVisit = graph.getClosestUnvisited(id, new ArrayList<Couple<String,String>>()); 
-<<<<<<< HEAD
-						//TODO 10.4: If we come from the interblocage and we have a priority, it's not necessary to do all this calculs, 
-						// the node we want to move to is already known!
-=======
 			
->>>>>>> 857699c9e56834f56fbf11eeffefd8499fe512d4
                         ArrayList<Node> pathToTheClosest = graph.getPathToClosestUnvisited(graph.getNode(id));
                         if(pathToTheClosest == null){
                             System.out.println("The graph has been fully explored ! List of nodes : \n");
@@ -217,15 +212,8 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 	
 	public int onEnd(){
 		// TODO 28.2 : FSMBehaviour start moving to inform the other agents
-<<<<<<< HEAD
-		if(moved) {
-			interblocageMessage.reset();
-			return MOVED;
-		}
-=======
 		if(moved)
 			return MOVED;
->>>>>>> 857699c9e56834f56fbf11eeffefd8499fe512d4
 		else {
 			interblocageMessage.setSender(this.myAgent.getAID());
 			interblocageMessage.setContent("INTERBLOCAGE: \n Agent: "+myAgent.getLocalName()+"\n blocked at:" +((abstractAgent) myAgent).getCurrentPosition()+"\n want move to :"+moveTo);
