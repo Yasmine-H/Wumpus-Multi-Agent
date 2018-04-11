@@ -1,0 +1,114 @@
+LA SEMAINE 3:
+- définition des structures de base:
+      noeud - une pièce dans un labirynt, on connait son id, ses voisins, son contenu, le temps de la dernière mise à jour,
+              son état (visité ou vu mais pas encore visité)
+              
+                          
+      graphe - une liste de noeuds. La classe contient aussi toutes les fonctions liées à la manipulation du graphe, 
+               ainsi que les algorithmes de graphe (des parcours, fusion de deux graphes etc.)
+       
+               
+- parcours monoagent: 
+      solution proposée : l'agent avance dans un graphe dès qu'il peut. Une fois tous les noeuds accessibles sont visités, 
+                          il lance le parcours en largeur pour trouver le noeud le plus proche qu'il a vu mais pas encore visité.
+                          
+                          Une fois un tel noeud n'existe pas, l'agent a tout visité, sa carte est complète. 
+                          
+                          TODO : enlever ce behaviour une fois la carte est créée et ajouter un nouveau behaviour pour 
+                                 le comportement d'agent après
+                                 
+---------------------------------------------------------------------------------------------------------------------------------
+LA SEMAINE 4 :
+
+- parcours multi-agent:
+      - partage des cartes - cf. TODO plus haut, sur l'histoire des pointeurs aux voisins
+      
+      TODO : dans un behaviour BFSWalkBehaviour (ou à la limite dans tous les behaviours de parcours qu'on créera en future),
+             si on veut se déplacer vers une case, il faut d'abord vérifier si elle est occupée ou pas !
+             
+             Normalement, on est censé d'en être capable sans envoyer des messages (d'après ce qui a été dit en TD, et d'ailleurs,
+             on ne peut pas envoyer un message à un Golem déjà). 
+             
+             Comment on connaît le résultat de l'action move()? A regarder!
+      
+      TODO/Idées : Une fois l'agent a fini, faut-il mettre en place le flood pour propager la carte compléte au maximum? Ou bien,
+                  faut-il que les agents se retrouvent quelque part pour se dire qu'ils on finis?
+                  
+     - communication pour échanger des cartes
+     
+     Pour l'instant, on a des behaviours pour envoyer et recevoir un message
+     
+     TODO : Définir le protocole de communication entre les agents si ils veulent échanger leurs cartes. 
+     
+     TODO : Gérer pour chaque agent la structure dans laquelle on va retenir ce qu'on a déjà envoyé à qui... pour ne pas envoyer
+            toujours le graphe complet.
+     
+     TODO : Définir le FSMBehaviour (machine à états) - pour le moment, réfléchir sur les différentes possibilités
+     
+     TODO/Idées : On apprends d'abord le noeud courrant (dans le behavoir SendGraph? Dans un autre? ) avant l'envoyer, ou pas?
+                  On fais quoi si l'agent ne réponds pas? On attends? On s'en fiche?
+  
+  ------------------------------------------------------------------------------------------------------------------------------
+  SEMAINE 5 : COORDINATION
+  
+  TODO : Envisager toutes les problèmes possibles qu'on peut rencontrer, et les solutions possibles (priorités de passage,
+         comment traiter le Golem, ...)
+  
+  A LA LIMITE : Partage des zones.
+  
+ -------------------------------------------------------------------------------------------------------------------------------
+ 
+ SEMAINE 6 : FIN INTERBLOCAGE, DEBUT RAMASSAGE TRÉSOR
+ 
+ TODO : 
+ 1/ L'INTERBLOCAGE - cf. le doc
+ 2/ BFSExploration une fois il a fini - définir nouveau comportement etc. (soit nouveau comportement, soit if - else dans BFS)
+                                      - ? informer les autres qu'on a fini avec un flood? 
+                                      - on ne propose plus d'un graphe, juste la liste de contenu qui a changé
+                                      - s'échanger la position du Golem 
+                                      - chasser le Golem !
+3/ Mettre en plase la machine a état (définir déjà toutes les classes de behaviours, même si elles sont vides pour l'instant, 
+  pour avoir la machine)
+ 
+4/ Ajouter un nouveau agent qui ramasse des trésors, silo, leurs behavoiurs (et avancer si possible).
+ 
+ 
+ 
+ Idées: 
+      - Comportement de l'explorateur une fois la carte est complète:
+        - réduire le temps qu'il passe à l'échange des graphes (attente de réponses...)
+        - chasser le Golem
+        - se mettre aux endroits stratégiques du graphes (partage des zones)
+      
+      - Agent SILO :
+        - Il ne bouge pas trop pour que les gens sache où il est
+        - Il est là où il y a beaucoup de trésors (les agents sont probablements pas loin), ou il y a des trésors trop lourds 
+          (pour que l'agent peut vider son sac rapidement)
+        - La plus grande priorité : il faut pas aller dans les wones faiblement connectées (couloirs etc.) - il faut surtout 
+          pas bloquer l'accès aux trésors, générer des interblocages... !!!
+      
+      - Agent ramasseur :
+        - Dans ça carte, une fonction d'utilité de trésors (priorité aux trésors qu'il peut collecter), valeurs faibles pour 
+          les trésors qui ne lui intéressent pas (il vas pas passer par là, il peut juste informer les autres sur leurs présence)
+        - La strategie de choix d'un trésor à ramasser (plus bas)
+        - Stratégie comment vider son sac
+        - Machine à état pour ramasseur
+        
+      - Machine à états:
+        QUESTION : Faut-il partir de la supposition que les autres agents sont fiables ou pas? Peut-on laisser tomber des contract?
+                   "Définir" la priorité des actions.
+      
+      - Stratégie de collecte :
+        - Soit ils se partegent les zones, après, l'agent préférencie les trésors dans sa zone
+           + : pas d'interblocages et moins de concurrence, on peut prédire ce que font les autres
+           - : ça ne prend pas en compte la position du Golem, ni du Silo, il ne sait pas quoi faire une fois il finit sa zone
+        - Fonction d'utilité des trésors à ramasser 
+           - prend en compte le type de trésor, la volume (en fonction de nos disponobilité), position (distance, couloir,
+             Silo, d'autres agents à proximité, Golem)
+           + : on ramasse les trésors les plus intéressants 
+           - : comme tout le monde a la même fonction d'utilité, si elle est mal définie, il y a un risque que tout le monde se 
+               lance vers le même trésor -> interblocages, concurrence, répartition déséquilibrée... 
+        - Il va vers le Silo et il essaie de ramasser le plus possible sur le chemin 
+                   
+-------------------------------------------------------------------------------------------------------------------------------
+SEMAINE 7 : FIN RAMASSAGE TRÉSORS !!!
