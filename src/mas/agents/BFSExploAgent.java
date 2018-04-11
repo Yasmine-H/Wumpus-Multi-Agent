@@ -176,7 +176,11 @@ public class BFSExploAgent extends abstractAgent{
 		
 		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)
 		fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, interblocageMessage), STATE_START_INTERBLOCAGE);
+<<<<<<< HEAD
 		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers), STATE_INTERBLOCAGE_LISTENER);
+=======
+		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, interblocageMessage), STATE_INTERBLOCAGE_LISTENER);
+>>>>>>> 857699c9e56834f56fbf11eeffefd8499fe512d4
 		fsm.registerState(new CheckMailBoxBehaviour(this, STATE_WALK), STATE_CHECK_MAILBOX);
 		
 		
