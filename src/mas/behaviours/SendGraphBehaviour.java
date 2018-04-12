@@ -28,20 +28,19 @@ public class SendGraphBehaviour extends SimpleBehaviour{
 	 *  
 	 */
 	
-	Graph graph;
-	ArrayList<AID> receivers;
+	private Graph graph;
+	private ArrayList<AID> graph_subscribers;
 	
-	public SendGraphBehaviour (final Agent myagent, Graph graph, ArrayList<AID> receivers) {
+	public SendGraphBehaviour (final Agent myagent, Graph graph, ArrayList<AID> receivers, ArrayList<AID> graph_subscribers) {
 		super(myagent);
 		this.graph=graph;
-		this.receivers=receivers;
-		
+		this.graph_subscribers=graph_subscribers;
 	}
 
 	@Override
 	public void action() {
 		//String myPosition=((mas.abstractAgent)this.myAgent).getCurrentPosition();
-		System.out.println("************************SendGraphBehaviour****************************");
+		System.out.println(myAgent.getLocalName()+"************************SendGraphBehaviour****************************");
 		//send graph for the 2-neighbours
 		ACLMessage msg=new ACLMessage(ACLMessage.INFORM);
 		msg.setSender(this.myAgent.getAID());
@@ -68,14 +67,16 @@ public class SendGraphBehaviour extends SimpleBehaviour{
 				}
 			}*/
 			
-			for(AID receiver : receivers)
+			for(AID subscriber : graph_subscribers)
 			{
-				msg.addReceiver(receiver);
+				msg.addReceiver(subscriber);
 			}
 			
+			
+			//msg.addReceiver(graph_subscriber);
 			msg.setContentObject(graph);
 			((mas.abstractAgent)this.myAgent).sendMessage(msg);
-			//System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");
+			System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent"+"\nTHE NUMBER OF RECEIVERS SHOULD BE ::::: "+graph_subscribers.size());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (FIPAException e) {
@@ -87,7 +88,7 @@ public class SendGraphBehaviour extends SimpleBehaviour{
 
 	@Override
 	public boolean done() {
-		receivers.clear();
+		graph_subscribers.clear();
 		return true;
 	}
 

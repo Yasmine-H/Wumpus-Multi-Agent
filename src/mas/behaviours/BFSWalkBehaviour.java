@@ -79,7 +79,7 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
             
                         if(!graph.isInGraph(id)){ //check if the node already exists in the graph 
                             graph.addNode(new Node(id, listNeighbours, lobs.get(0).getRight(), true));
-                            System.out.println("New node added, the neighbours are : "+graph.getNode(id).getNeighbours().toString());
+                            //System.out.println("New node added, the neighbours are : "+graph.getNode(id).getNeighbours().toString());
                         }
                         else{
                             if(!graph.getNode(id).getVisited()){
@@ -108,7 +108,6 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 
 			//list of attribute associated to the currentPosition
 			List<Attribute> lattribute= lobs.get(0).getRight();
-
 			
 			//example related to the use of the backpack for the treasure hunt
 			Boolean b=false;
@@ -116,12 +115,14 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 			for(Attribute a:lattribute){
 				switch (a) {
 				case TREASURE:
+					/*
 					System.out.println("My type is : "+((mas.abstractAgent)this.myAgent).getMyTreasureType());
 					System.out.println("My current backpack capacity is:"+ ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace());
 					System.out.println("Value of the treasure on the current position: "+a.getValue());
 					System.out.println("The agent grabbed :"+((mas.abstractAgent)this.myAgent).pick());
 					System.out.println("the remaining backpack capacity is: "+ ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace());
 					System.out.println("The value of treasure on the current position: (unchanged before a new call to observe()): "+a.getValue());
+					*/
 					b=true;
 					
 					//Little pause to allow you to follow what is going on
@@ -134,12 +135,14 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 					
 					break;
 			case DIAMONDS:
+				/*
 				System.out.println("My type is : "+((mas.abstractAgent)this.myAgent).getMyTreasureType());
 				System.out.println("My current backpack capacity is:"+ ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace());
 				System.out.println("Value of the diamonds on the current position: "+a.getValue());
 				System.out.println("The agent grabbed :"+((mas.abstractAgent)this.myAgent).pick());
 				System.out.println("the remaining backpack capacity is: "+ ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace());
 				System.out.println("The value of treasure on the current position: (unchanged before a new call to observe()): "+a.getValue());
+				*/
 				b=true;
 				
 				//Little pause to allow you to follow what is going on
@@ -158,7 +161,7 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 			//If the agent picked (part of) the treasure
 			if (b){
 				List<Couple<String,List<Attribute>>> lobs2=((mas.abstractAgent)this.myAgent).observe();//myPosition
-				System.out.println("list of observables after picking "+lobs2);
+				//System.out.println("list of observables after picking "+lobs2);
 			}
 			/*
 			//Random move from the current position
@@ -190,8 +193,8 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
                             if(pathToTheClosest.get(0).getId().equalsIgnoreCase(id)){ //if the first node of the path is the current node, which is normally the case 
                             //TODO 26.2.: it shouldn't be the case, it is not very proper like this!
                                pathToTheClosest.remove(graph.getNode(id));
-                               System.out.println("Exploration de "+myAgent.getLocalName());
-                               graph.printNodes();
+                               //System.out.println("Exploration de "+myAgent.getLocalName());
+                               //graph.printNodes();
                                moveTo = pathToTheClosest.get(0).getId();
                                moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo); //we visit the first next node on the path
                                

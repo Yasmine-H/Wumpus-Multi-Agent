@@ -2,10 +2,9 @@ package mas.graph;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-
-import env.Couple;
 import java.util.HashMap;
+
+import env.Attribute;
 
 public class Graph implements Serializable{
 
@@ -317,11 +316,11 @@ public String getClosestUnvisited2(String id, ArrayList<String> idsList) {
 		System.out.println("***********List of the "+graph.size()+" known Nodes : ");
 		for(int i=0; i<graph.size(); i++)
 		{
-			System.out.println("Node id : "+graph.get(i).getId()+" --- visited : "+graph.get(i).getVisited()+"\nList of neighbours : "+graph.get(i).getNeighbours().toString());
+			System.out.println("Node id : "+graph.get(i).getId()+" --- visited : "+graph.get(i).getVisited()+"\nList of neighbours : "+graph.get(i).getNeighbours().toString()+"\n Treasor value "+graph.get(i).getContentList().toString());
 		}
 	}
 	
-		public void fusion(Graph graph2)
+	public void fusion(Graph graph2)
 	{
 		
 		for(Node node2 : graph2.getAllNodes())//loop for adding the new nodes
@@ -330,7 +329,10 @@ public String getClosestUnvisited2(String id, ArrayList<String> idsList) {
 			int index = getNodeIndex((node2.getId()));
 			if(index == -1) //node doesn't exist in the graph
 			{
-				graph.add(node2.clone()); // WARNinG NEIGHBOUURSSS pointeurs
+				Node myNode = new Node(node2.getId(), new ArrayList<Node>(), node2.getContentList(), node2.getVisited());
+				//graph.add(node2.clone()); // WARNinG NEIGHBOUURSSS pointeurs
+				graph.add(myNode);
+				
 				//TODO 13.3:
 				//We need to loop over all neighbours of this node in the graph2, and remove all neighbours of the copy
 				// .... if the neighbour exists in the first graph, we add it into the list of neighbours 
@@ -341,14 +343,31 @@ public String getClosestUnvisited2(String id, ArrayList<String> idsList) {
 				//									- recursion??? I don't see how, the first solution is prefered
 				
 				//first of all, we remove all the neighbours of the clone
-				getNode(node2.getId()).clearNeighbours();
+				//Node myNode = getNode(node2.getId());
+				/*System.out.println("==========node : "+node2.getId()+" and his  neighbours are ::::: "+node2.getNeighbours().toString()+
+						" and mine are :::::: "+myNode.getNeighbours().toString()+" and @== "+(node2==myNode)+" and "+(node2.getNeighbours()==myNode.getNeighbours()));
+				
+				//myNode.clearNeighbours();
+				//(getNode(node2.getId())).clearNeighbours();
+				System.out.println("==========node : "+node2.getId()+" and his  neighbours are ::::: "+node2.getNeighbours().toString());
+				*/
 				for(Node neighbour: node2.getNeighbours()) {
+					
 					int i = getNodeIndex(neighbour.getId());
+					//System.out.println("==========node : "+getNode(node2.getId()).getId()+" neighbour :::: "+neighbour.getId()+" index is ======= "+i);
 					if(i != -1) { //the node exists in the original graph 
-						getNode(node2.getId()).addNeighbour(getNode(i)); //we add it as a neighbour of if
+						//getNode(node2.getId()).addNeighbour(getNode(i)); //we add it as a neighbour of if
+						myNode.addNeighbour(getNode(i));
 					}
 					//else : we do nothing
 				}
+				
+				/*TODO 12.4.2018 : Should we create a copy of the content (list of attribute) instead of taking the same ? (they point at the same memory space ?)
+				for(Attribute treasure: node2.getContentList()) {
+					myNode.getContentList().add(new Attribute(treasure.getName(), treasure.getValue()));
+					
+				}
+				*/
 			}
 			
 		}
@@ -369,6 +388,7 @@ public String getClosestUnvisited2(String id, ArrayList<String> idsList) {
 							int index_neigh = getNodeIndex(neighbour2.getId());
 							//if(index != -1) //the node of neighbour2 already exists
 							//{
+						
 							graph.get(index).addNeighbour(graph.get(index_neigh));
 							//}
 							

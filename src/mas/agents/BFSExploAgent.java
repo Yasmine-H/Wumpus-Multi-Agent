@@ -17,10 +17,7 @@ import jade.lang.acl.ACLMessage;
 import mas.abstractAgent;
 import mas.behaviours.BFSWalkBehaviour;
 import mas.behaviours.CheckMailBoxBehaviour;
-import mas.behaviours.GraphAcknowledgmentListener;
-import mas.behaviours.GraphPropositionBehaviour;
-import mas.behaviours.GraphReceiversListenerBehaviour;
-import mas.behaviours.GraphSendersListenerBehaviour;
+import mas.behaviours.GraphRequestBehaviour;
 import mas.behaviours.InterblocageListenerBehaviour;
 import mas.behaviours.ReceiveGraphBehaviour;
 import mas.behaviours.SendGraphBehaviour;
@@ -48,6 +45,7 @@ public class BFSExploAgent extends abstractAgent{
 	public static final String STATE_GRAPH_AKN_LISTENER = "Graph Reception Acknowledgment Listener";
 	public static final String STATE_GRAPH_SENDERS_LISTENER = "Graph Senders Listener"; //waits for agents to propose their graphs
 	public static final String STATE_GRAPH_RECEPTION = "Graph Reception";
+	public static final String STATE_SEND_GRAPH_REQUEST = "Graph Request";
 	
 	public static final String STATE_START_INTERBLOCAGE = "Interblocage Start Message";
 	public static final String STATE_INTERBLOCAGE_LISTENER = "Interblocage Listener";
@@ -60,6 +58,7 @@ public class BFSExploAgent extends abstractAgent{
 	private ArrayList<AID> receivers;
 	private ArrayList<AID> senders;
 	private ACLMessage interblocageMessage;
+	private ArrayList<AID> graph_subscribers;
 	//private String moveTo;
 	/**
 	 * This method is automatically called when "agent".start() is executed.
@@ -105,6 +104,7 @@ public class BFSExploAgent extends abstractAgent{
 		graph = new Graph();
 		receivers = new ArrayList<>();
 		senders = new ArrayList<>();
+		graph_subscribers = new ArrayList<>();
 		interblocageMessage = new ACLMessage(ACLMessage.REQUEST);
 		
 		DFAgentDescription[] result;
@@ -136,122 +136,30 @@ public class BFSExploAgent extends abstractAgent{
 
 		};
 		
-		/*
-		//Behaviours/States
-		fsm.registerFirstState(new BFSWalkBehaviour(this, graph), STATE_WALK);
-		fsm.registerState(new DeadlockReportBehaviour(this), STATE_DEADLOCK_REPORT);
-		fsm.registerState(new DeadlockListenerBehaviour(this), STATE_DEADLOCK_LISTENER);
-		fsm.registerState(new DeadlockSolvingBehaviour(this, graph), STATE_DEADLOCK_SOLVING);
-		fsm.registerState(new GraphPropositionBehaviour(this, graph), STATE_GRAPH_PROPOSITION);
-		fsm.registerState(new GraphReceiversListenerBehaviour(this, graph), STATE_GRAPH_RECEIVERS_LISTENER);
-		fsm.registerState(new SendGraphBehaviour(this, graph), STATE_GRAPH_TRANSMISSION);
-		fsm.registerState(new GraphAcknowledgmentListener(this, graph), STATE_GRAPH_AKN_LISTENER);
-		fsm.registerState(new GraphReceptionListenerBehaviour(this, graph), STATE_GRAPH_SENDERS_LISTENER);
-		fsm.registerState(new ReceiveGraphBehaviour(this, graph), STATE_GRAPH_RECEPTION);
-		
-		
-		
-		//Transitions
-		//After moving 
-		fsm.registerTransition(STATE_WALK, STATE_DEADLOCK_REPORT, BFSWalkBehaviour.BLOCKED);
-		fsm.registerTransition(STATE_WALK, STATE_GRAPH_PROPOSITION, BFSWalkBehaviour.MOVED);		
-		
-		//Deadlock conflict
-		fsm.registerDefaultTransition(STATE_DEADLOCK_REPORT, STATE_DEADLOCK_LISTENER);
-		fsm.registerTransition(STATE_DEADLOCK_LISTENER, STATE_DEADLOCK_LISTENER, DeadlockListenerBehaviour.WAITING);
-		fsm.registerTransition(STATE_DEADLOCK_LISTENER, STATE_DEADLOCK_SOLVING, DeadlockListenerBehaviour.ANSWER_RECEIVED);
-		fsm.registerTransition(STATE_DEADLOCK_LISTENER, STATE_WALK, DeadlockListenerBehaviour.NO_ANSWER);
-		fsm.registerTransition(STATE_DEADLOCK_SOLVING, STATE_DEADLOCK_REPORT, BFSWalkBehaviour.BLOCKED);
-		fsm.registerTransition(STATE_DEADLOCK_SOLVING, STATE_GRAPH_PROPOSITION, BFSWalkBehaviour.MOVED);
-		
-		//Graph Transmission TODO 03.04.2018 : be careful of async msgs, are we sure this will work ? Did we forget some kind of msgs ?
-		fsm.registerDefaultTransition(STATE_GRAPH_PROPOSITION, STATE_GRAPH_RECEIVERS_LISTENER);
-		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_RECEIVERS_LISTENER, GraphReceiversListenerBehaviour.WAITING);
-		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_TRANSMISSION, GraphReceiversListenerBehaviour.RECEIVERS);
-		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphReceiversListenerBehaviour.NO_RECEIVERS);
-		fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_GRAPH_AKN_LISTENER);
-		fsm.registerTransition(STATE_GRAPH_AKN_LISTENER, STATE_GRAPH_AKN_LISTENER, GraphAcknowledgmentListener.WAITING);
-		fsm.registerTransition(STATE_GRAPH_AKN_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphAcknowledgmentListener.COMPLETED);
-		
-		//Graph Reception
-		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphReceptionBehaviour.WAITING);
-		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_GRAPH_RECEPTION, GraphReceptionBehaviour.SENDERS);
-		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_WALK, GraphReceptionBehaviour.NO_SENDERS);
-		fsm.registerDefaultTransition(STATE_GRAPH_RECEPTION, STATE_WALK);
-		
-			
-		*/
-		//test
 		
 		fsm.registerFirstState(new BFSWalkBehaviour(this, graph, interblocageMessage), STATE_WALK);
-		fsm.registerState(new GraphPropositionBehaviour(this, graph), STATE_GRAPH_PROPOSITION);
-		fsm.registerState(new GraphReceiversListenerBehaviour(this, graph, receivers), STATE_GRAPH_RECEIVERS_LISTENER);
-		fsm.registerState(new SendGraphBehaviour(this, graph, receivers), STATE_GRAPH_TRANSMISSION);
-		fsm.registerState(new GraphAcknowledgmentListener(this, graph), STATE_GRAPH_AKN_LISTENER);
-		fsm.registerState(new GraphSendersListenerBehaviour(this, graph, senders), STATE_GRAPH_SENDERS_LISTENER);
+		fsm.registerState(new SendGraphBehaviour(this, graph, receivers, graph_subscribers), STATE_GRAPH_TRANSMISSION);
 		fsm.registerState(new ReceiveGraphBehaviour(this, graph, senders), STATE_GRAPH_RECEPTION);
+		fsm.registerState(new GraphRequestBehaviour(this), STATE_SEND_GRAPH_REQUEST);
 		
 		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)
 		fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, interblocageMessage), STATE_START_INTERBLOCAGE);
 
-		fsm.registerLastState(new InterblocageListenerBehaviour(this, graph, receivers, interblocageMessage), STATE_INTERBLOCAGE_LISTENER);
+		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, interblocageMessage), STATE_INTERBLOCAGE_LISTENER);
 		//TODO 11.4.2018 : LAST ATTENTION
-		fsm.registerState(new CheckMailBoxBehaviour(this, STATE_WALK), STATE_CHECK_MAILBOX);
+		fsm.registerState(new CheckMailBoxBehaviour(this, graph, STATE_WALK, graph_subscribers), STATE_CHECK_MAILBOX);
 		
-		/*
-		
-		//Transitions
-		//After moving 
-		fsm.registerDefaultTransition(STATE_WALK, STATE_GRAPH_PROPOSITION);		
-		
-		//Graph Transmission TODO 03.04.2018 : be careful of async msgs, are we sure this will work ? Did we forget some kind of msgs ?
-
-		fsm.registerDefaultTransition(STATE_GRAPH_PROPOSITION, STATE_GRAPH_RECEIVERS_LISTENER);
-		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphSendersListenerBehaviour.SENDERS_EMPTY);
-		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_TRANSMISSION, GraphSendersListenerBehaviour.SENDERS_NOT_EMPTY);
-		fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_GRAPH_AKN_LISTENER);
-		fsm.registerDefaultTransition(STATE_GRAPH_AKN_LISTENER, STATE_GRAPH_SENDERS_LISTENER);
-		
-		
-		fsm.registerDefaultTransition(STATE_GRAPH_PROPOSITION, STATE_GRAPH_SENDERS_LISTENER);
-		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_WALK, GraphSendersListenerBehaviour.SENDERS_EMPTY);
-		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_GRAPH_RECEPTION, GraphSendersListenerBehaviour.SENDERS_NOT_EMPTY);
-		fsm.registerDefaultTransition(STATE_GRAPH_RECEPTION, STATE_WALK); 
-		
-		
-		//fsm.registerTransition(STATE_WALK, STATE_START_INTERBLOCAGE, BFSWalkBehaviour.BLOCKED);
-		/*fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_RECEIVERS_LISTENER, GraphReceiversListenerBehaviour.WAITING);
-		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_TRANSMISSION, GraphReceiversListenerBehaviour.RECEIVERS);
-		fsm.registerTransition(STATE_GRAPH_RECEIVERS_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphReceiversListenerBehaviour.NO_RECEIVERS);
-		/*fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_GRAPH_AKN_LISTENER);
-		fsm.registerTransition(STATE_GRAPH_AKN_LISTENER, STATE_GRAPH_AKN_LISTENER, GraphAcknowledgmentListener.WAITING);
-		fsm.registerTransition(STATE_GRAPH_AKN_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphAcknowledgmentListener.COMPLETED);
-		
-		
-		//Graph Reception
-		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_GRAPH_SENDERS_LISTENER, GraphReceptionBehaviour.WAITING);
-		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_GRAPH_RECEPTION, GraphReceptionBehaviour.SENDERS);
-		fsm.registerTransition(STATE_GRAPH_SENDERS_LISTENER, STATE_WALK, GraphReceptionBehaviour.NO_SENDERS);
-		fsm.registerDefaultTransition(STATE_GRAPH_RECEPTION, STATE_WALK);
-		*/
-		
-		fsm.registerDefaultTransition(STATE_WALK, STATE_START_INTERBLOCAGE);
-		//fsm.registerDefaultTransition(STATE_START_INTERBLOCAGE, STATE_WALK);
-		fsm.registerDefaultTransition(STATE_START_INTERBLOCAGE, STATE_INTERBLOCAGE_LISTENER);
-		/*fsm.registerTransition(STATE_INTERBLOCAGE_LISTENER, STATE_WALK, InterblocageListenerBehaviour.HAS_PRIORITY);
-		fsm.registerTransition(STATE_INTERBLOCAGE_LISTENER, STATE_CHECK_MAILBOX, InterblocageListenerBehaviour.NO_RESPONSE);
-		fsm.registerTransition(STATE_INTERBLOCAGE_LISTENER, STATE_GIVES_PRIORITY, InterblocageListenerBehaviour.GIVES_PRIORITY);
+		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.MOVED);
+		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.BLOCKED); // /!\TODO
+		fsm.registerDefaultTransition(STATE_SEND_GRAPH_REQUEST, STATE_CHECK_MAILBOX);
+		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_TRANSMISSION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_TRANSMISSION);
+		fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
 		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_WALK, CheckMailBoxBehaviour.GOTO_STATE_WALK);
-		//fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_PROPOSITION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_PROPOSITION);
-		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_INTERBLOCAGE_RESOLUTION, CheckMailBoxBehaviour.GOTO_STATE_INTERBLOCAGE_RESOLUTION);
-		fsm.registerDefaultTransition(STATE_INTERBLOCAGE_RESOLUTION, STATE_CHECK_MAILBOX); //, 1); //has priority
-//		fsm.registerTransition(STATE_INTERBLOCAGE_RESOLUTION,  , event);
-		*/
+		
 		addBehaviour(fsm);
 
 		
 		
-		//addBehaviour(new SendInterblocageStartMessageBehaviour(this, graph, null, null));
 		//addBehaviour(new BFSWalkBehaviour(this, graph));
 		/*addBehaviour(new SendGraphBehaviour(this, graph));
 		addBehaviour(new ReceiveGraphBehaviour(this, graph));
@@ -273,8 +181,5 @@ public class BFSExploAgent extends abstractAgent{
 			fe.printStackTrace();
 		}
 	}
-	/*
-	public void setMoveTo(String moveTo) {
-		this.moveTo = moveTo;
-	}*/
+	
 }

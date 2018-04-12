@@ -65,7 +65,7 @@ public class ReceiveGraphBehaviour extends SimpleBehaviour{
 				ACLMessage ackn=new ACLMessage(ACLMessage.CONFIRM);
 				ackn.setSender(this.myAgent.getAID());
 				ackn.addReceiver(msg.getSender());
-				ackn.setContent(GraphAcknowledgmentListener.MSG_GRAPH_RECEIVED);
+				ackn.setContent(CheckMailBoxBehaviour.MESSAGE_GRAPH_RECEIVED);
 				((mas.abstractAgent)this.myAgent).sendMessage(ackn);
 				//System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");
 				
