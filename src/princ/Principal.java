@@ -34,8 +34,8 @@ public class Principal {
 		System.out.println("Hello !");
 		//0) Create the real environment and the observed one
 
-		env= new Environment(ENVtype.GRID_T,4,null);
-		//env= new Environment(ENVtype.DOROGOVTSEV_T,8,null);
+		//env= new Environment(ENVtype.GRID_T,4,null);
+		env= new Environment(ENVtype.DOROGOVTSEV_T,8,null);
 		//env=new Environment("ressources/map2017-2","ressources/map2017-config");
 
 		

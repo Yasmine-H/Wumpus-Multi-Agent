@@ -37,15 +37,13 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 	private Graph graph;
 	private boolean fullyExplored = false;
 	private boolean moved = false;
-	private ACLMessage interblocageMessage;
-	private String moveTo;
+	private StringBuilder moveTo;
 	
-	public BFSWalkBehaviour (final mas.abstractAgent myagent, Graph graph /*ArrayList<Node> graph*/, ACLMessage interblocageMessage) {
+	public BFSWalkBehaviour (final mas.abstractAgent myagent, Graph graph /*ArrayList<Node> graph*/, StringBuilder moveTo) {
 		super(myagent);
 		this.graph = graph;
 		//super(myagent);
-		this.interblocageMessage = interblocageMessage;
-		this.moveTo = "";
+		this.moveTo = moveTo;
 	}
 
 	@Override
@@ -195,8 +193,8 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
                                pathToTheClosest.remove(graph.getNode(id));
                                //System.out.println("Exploration de "+myAgent.getLocalName());
                                //graph.printNodes();
-                               moveTo = pathToTheClosest.get(0).getId();
-                               moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo); //we visit the first next node on the path
+                               moveTo = moveTo.replace(0, moveTo.length(),pathToTheClosest.get(0).getId());
+                               moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString()); //we visit the first next node on the path
                                
                                //System.out.println("Node to visit : "+pathToTheClosest.get(0).getId());
                             }
@@ -218,8 +216,6 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 		if(moved)
 			return MOVED;
 		else {
-			interblocageMessage.setSender(this.myAgent.getAID());
-			interblocageMessage.setContent("INTERBLOCAGE: \n Agent: "+myAgent.getLocalName()+"\n blocked at:" +((abstractAgent) myAgent).getCurrentPosition()+"\n want move to :"+moveTo);
 			return BLOCKED;
 		}
 			

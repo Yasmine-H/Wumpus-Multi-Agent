@@ -24,14 +24,16 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 	private static final long serialVersionUID =8688081240099240575L;
 	private Graph graph;
 	private ArrayList<AID> receivers;
-	private ACLMessage msg;
+	private StringBuilder previousState;
 	
 	
-	public SendInterblocageStartMessageBehaviour(final mas.abstractAgent myAgent, Graph graph, ArrayList<AID> recievers, ACLMessage interblocageMessage) {
+	public SendInterblocageStartMessageBehaviour(final mas.abstractAgent myAgent, Graph graph, ArrayList<AID> recievers, StringBuilder previousState) {
 		super(myAgent);
 		this.graph = graph;
 	    this.receivers = recievers;
-	    this.msg = interblocageMessage;
+	    this.previousState = previousState;
+	    
+	    
 	    
 	}
 	
@@ -62,7 +64,8 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 				}
 
 			
-			msg.setContent("whyyyyyyyyyy");
+			msg.setContent("INTERBLOCAGE DETECTED: \nAgent: "+myAgent.getLocalName()+"\nType: EXPLO \nBlocked at: "
+							+((abstractAgent) myAgent).getCurrentPosition()+"\nWant move to: "+((BFSExploAgent) myAgent).getMoveTo());
 				
 			
 			//we want the response in 3 seconds
@@ -78,54 +81,11 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 		}
 	}
 
-
 	@Override
 	public boolean done() {
 		// TODO Auto-generated method stub
+		this.previousState.replace(0, this.previousState.length(), BFSExploAgent.STATE_START_INTERBLOCAGE);
 		return true;
 	}
-/*
-	@Override
-	public void action() {
-		// TODO Auto-generated method stub
-		//String myPosition=((mas.abstractAgent)this.myAgent).getCurrentPosition();
-				System.out.println("************************SendGraphBehaviour****************************");
-				//send graph for the 2-neighbours
-				
-				ACLMessage msg=new ACLMessage(ACLMessage.PROPOSE);
-				msg.setSender(this.myAgent.getAID());
-				
-			
-				
-				DFAgentDescription dfd = new DFAgentDescription();
-				ServiceDescription sd = new ServiceDescription();
-				sd.setType(BFSExploAgent.SERVICE_EXP);
-				dfd.addServices(sd);
-				
-				try {
-					DFAgentDescription[] result;
-					result = DFService.search(myAgent, dfd);
-										
-					for(AID receiver : receivers)
-					{
-						msg.addReceiver(receiver);
-					}
-					msg.setContent("INTERBLOCAGE: \n Agent: "+myAgent.getLocalName()+"\n blocked at:" +((abstractAgent) myAgent).getCurrentPosition()+"\n want move to :"+moveTo);
-					((mas.abstractAgent)this.myAgent).sendMessage(msg);
-					System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");
-				} catch (FIPAException e) {
-					e.printStackTrace();
-				}
-				
-	}
-
-	@Override
-	public boolean done() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-	*/
-
-
 	
 }

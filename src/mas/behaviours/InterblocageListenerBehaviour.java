@@ -19,14 +19,12 @@ public class InterblocageListenerBehaviour extends Behaviour{
 	
 	private Graph graph;
 	private ArrayList<AID> senders;
-	private ACLMessage originalMsg;
 	private int result;
 	
-	public InterblocageListenerBehaviour(final mas.abstractAgent myagent, Graph graph, ArrayList<AID> senders, ACLMessage originalMsg) {
+	public InterblocageListenerBehaviour(final mas.abstractAgent myagent, Graph graph, ArrayList<AID> senders) {
 		super(myagent);
 		this.graph=graph;
 		this.senders=senders;
-		this.originalMsg = originalMsg;
 	}
 
 	@Override
@@ -35,20 +33,21 @@ public class InterblocageListenerBehaviour extends Behaviour{
 		//InterblocageAcceptMT iamt = new InterblocageAcceptMT();
 		
 		System.out.println("Interblocage listener Bevahivour*************************");
-		//TODO 9.4.: Define its own template to distinguish interblocage messages and graph proposal messages
-		//MessageTemplate mt = new MessageTemplate.MatchExpression(iamt); 
+		//TODO 9.4.: Define its own template to distinguish interblocage messages and graph proposal messages !!! - if we have another message with this performative that does not concern interblocage? 
+		MessageTemplate mt = MessageTemplate.or(MessageTemplate.MatchPerformative(ACLMessage.AGREE), MessageTemplate.MatchPerformative(ACLMessage.REFUSE));
 		//ACLMessage msg = myAgent.blockingReceive(mt, originalMsg.getReplyByDate().getTime()-System.currentTimeMillis());
-		MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
-		//ACLMessage msg = myAgent.blockingReceive(mt, originalMsg.getReplyByDate().getTime()-System.currentTimeMillis());
-		ACLMessage msg = myAgent.blockingReceive(mt, 60000);
+		//TODO 18.4: Create a constant for 3000, and check out if it is not too much 
+		ACLMessage msg = myAgent.blockingReceive(mt, 3000);
 		result = NO_RESPONSE;
 		
 		if(msg != null) {
 			System.out.println("Agent : "+myAgent.getLocalName()+" new msg received : "+msg.getContent());
 			if (msg.getPerformative() == ACLMessage.AGREE) {
+				System.out.println(myAgent.getLocalName()+" has priority! It will move.");
 				result = HAS_PRIORITY;
 			}
 			else if(msg.getPerformative() == ACLMessage.REFUSE) {
+				System.out.println(myAgent.getLocalName()+" has to give priority! It will go to the state GivePriorityBehaviour.");
 				result = GIVES_PRIORITY;
 			}
 		}
