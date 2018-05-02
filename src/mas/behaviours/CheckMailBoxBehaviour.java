@@ -11,6 +11,10 @@ import mas.graph.Graph;
 
 public class CheckMailBoxBehaviour extends Behaviour{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4296916477792239941L;
 	private String nextState;
 	private static final int TIME_OUT = 3;
 	public static final int GOTO_STATE_WALK = 0;
@@ -27,7 +31,7 @@ public class CheckMailBoxBehaviour extends Behaviour{
 		this.graph = graph;
 		this.nextState = nextState;
 		this.graph_subscribers = graph_subscribers;
-		result = -1;
+		result = GOTO_STATE_WALK;
 		timer = 0;
 	}
 	
@@ -48,6 +52,7 @@ public class CheckMailBoxBehaviour extends Behaviour{
 				break;
 			case ACLMessage.SUBSCRIBE : // Graph request
 				System.out.println(myAgent.getLocalName()+"New subscriber");
+				if(!graph_subscribers.contains(msg.getSender()))
 				graph_subscribers.add(msg.getSender());
 				result = GOTO_STATE_GRAPH_TRANSMISSION;
 				break;
@@ -65,7 +70,7 @@ public class CheckMailBoxBehaviour extends Behaviour{
 		}
 		else
 		{
-			System.out.println(myAgent.getLocalName()+"No more msgs :(");
+			System.out.println(myAgent.getLocalName()+" No more msgs :(");
 			result = GOTO_STATE_WALK;
 		}
 		
@@ -104,10 +109,12 @@ public class CheckMailBoxBehaviour extends Behaviour{
 		
 		boolean done = false;
 		timer++;
+		System.out.println(">>>>>Agent : "+myAgent.getLocalName()+" time : "+timer+"  and result : "+result);
 		if(timer == TIME_OUT || result != GOTO_STATE_WALK)
 		{
 			done = true;
 			timer = 0;
+			//graph_subscribers.clear();
 		}
 		
 		try {

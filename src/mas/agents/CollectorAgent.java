@@ -1,11 +1,7 @@
 package mas.agents;
 
-
-
-
 import java.util.ArrayList;
 
-import env.EntityType;
 import env.Environment;
 import jade.core.AID;
 import jade.core.behaviours.FSMBehaviour;
@@ -17,24 +13,20 @@ import jade.lang.acl.ACLMessage;
 import mas.abstractAgent;
 import mas.behaviours.BFSWalkBehaviour;
 import mas.behaviours.CheckMailBoxBehaviour;
+import mas.behaviours.CollectorWalkBehaviour;
 import mas.behaviours.GraphRequestBehaviour;
-import mas.behaviours.InterblocageListenerBehaviour;
-import mas.behaviours.ReceiveGraphBehaviour;
 import mas.behaviours.SendGraphBehaviour;
-import mas.behaviours.SendInterblocageStartMessageBehaviour;
 import mas.graph.Graph;
 
+public class CollectorAgent extends abstractAgent {
 
-public class BFSExploAgent extends abstractAgent{
-
-	
-	public static final String SERVICE_EXP = "explorer";
+	public static final String SERVICE_PICK = "picker";
 	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -1784844593772918360L;
-
+	private static final long serialVersionUID = -2396943036457870982L;
+	
 	public static final String STATE_WALK = "Walk";
 	public static final String STATE_DEADLOCK_REPORT = "Deadlock Report";
 	public static final String STATE_DEADLOCK_LISTENER = "Deadlock Listener";
@@ -59,23 +51,17 @@ public class BFSExploAgent extends abstractAgent{
 	private ArrayList<AID> senders;
 	private ACLMessage interblocageMessage;
 	private ArrayList<AID> graph_subscribers;
-	//private String moveTo;
-	/**
-	 * This method is automatically called when "agent".start() is executed.
-	 * Consider that Agent is launched for the first time. 
-	 * 			1) set the agent attributes 
-	 *	 		2) add the behaviours
-	 *          
-	 */
+	
+	
 	protected void setup(){
 
 		super.setup();
-		
+
 		//registering into the DF 		
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
 		ServiceDescription sd = new ServiceDescription();
-		sd.setType(SERVICE_EXP);
+		sd.setType(SERVICE_PICK);
 		sd.setName(getLocalName());
 		dfd.addServices(sd);
 		try
@@ -88,43 +74,17 @@ public class BFSExploAgent extends abstractAgent{
 		}
 		
 		
-		
 		//get the parameters given into the object[]. In the current case, the environment where the agent will evolve
 		final Object[] args = getArguments();
-		if(args!=null && args[0]!=null && args[1]!=null){
+		if(args[0]!=null){
 
-			deployAgent((Environment) args[0], (EntityType) args[1]);
+			deployAgent((Environment) args[0]);
 
 		}else{
 			System.err.println("Malfunction during parameter's loading of agent"+ this.getClass().getName());
 			System.exit(-1);
 		}
 		
-		graph = new Graph();
-		receivers = new ArrayList<>();
-		senders = new ArrayList<>();
-		graph_subscribers = new ArrayList<>();
-		interblocageMessage = new ACLMessage(ACLMessage.REQUEST);
-		
-		DFAgentDescription[] result;
-		try {
-			result = DFService.search(this, dfd);
-			for(int i=0; i<result.length; i++)
-			{
-				System.out.println("My AID is "+this.getAID() +" and I want to send to "+result[i].getName());
-				if(!result[i].getName().equals(this.getAID()))
-				{
-					receivers.add(result[i].getName());
-				}
-			}
-
-		} catch (FIPAException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-				
-		//Creating a finite-state machine
 		
 		FSMBehaviour fsm = new FSMBehaviour(this) {
 			public int onEnd() {
@@ -135,10 +95,16 @@ public class BFSExploAgent extends abstractAgent{
 
 		};
 		
+		graph = new Graph();
+		receivers = new ArrayList<>();
+		senders = new ArrayList<>();
+		graph_subscribers = new ArrayList<>();
+		interblocageMessage = new ACLMessage(ACLMessage.REQUEST);
 		
-		fsm.registerFirstState(new BFSWalkBehaviour(this, graph, interblocageMessage), STATE_WALK);
+
+		fsm.registerFirstState(new CollectorWalkBehaviour(this, graph), STATE_WALK);
 		fsm.registerState(new SendGraphBehaviour(this, graph, receivers, graph_subscribers), STATE_GRAPH_TRANSMISSION);
-		//fsm.registerState(new GraphRequestBehaviour(this, SERVICE_EXP), STATE_SEND_GRAPH_REQUEST);
+		fsm.registerState(new GraphRequestBehaviour(this, SERVICE_PICK), STATE_SEND_GRAPH_REQUEST);
 		
 		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)
 		//fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, interblocageMessage), STATE_START_INTERBLOCAGE);
@@ -146,6 +112,7 @@ public class BFSExploAgent extends abstractAgent{
 		//fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, interblocageMessage), STATE_INTERBLOCAGE_LISTENER);
 		//TODO 11.4.2018 : LAST ATTENTION
 		fsm.registerState(new CheckMailBoxBehaviour(this, graph, STATE_WALK, graph_subscribers), STATE_CHECK_MAILBOX);
+		
 		/*
 		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.MOVED);
 		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.BLOCKED); // /!\TODO
@@ -166,10 +133,10 @@ public class BFSExploAgent extends abstractAgent{
 
 		
 		
-		//addBehaviour(new BFSWalkBehaviour(this, graph));
-		/*addBehaviour(new SendGraphBehaviour(this, graph));
-		addBehaviour(new ReceiveGraphBehaviour(this, graph));
-		*/
+		//Add the behaviours
+		//addBehaviour(new RandomWalkBehaviour(this));
+		//addBehaviour(new SayHello(this));
+
 		System.out.println("the agent "+this.getLocalName()+ " is started");
 
 	}
@@ -178,14 +145,7 @@ public class BFSExploAgent extends abstractAgent{
 	 * This method is automatically called after doDelete()
 	 */
 	protected void takeDown(){
-		try
-		{
-			DFService.deregister(this);
-		}
-		catch(FIPAException fe)
-		{
-			fe.printStackTrace();
-		}
+
 	}
 	
 }

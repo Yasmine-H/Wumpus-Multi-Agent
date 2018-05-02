@@ -41,54 +41,59 @@ public class SendGraphBehaviour extends SimpleBehaviour{
 	public void action() {
 		//String myPosition=((mas.abstractAgent)this.myAgent).getCurrentPosition();
 		System.out.println(myAgent.getLocalName()+"************************SendGraphBehaviour****************************");
-		//send graph for the 2-neighbours
-		ACLMessage msg=new ACLMessage(ACLMessage.INFORM);
-		msg.setSender(this.myAgent.getAID());
 		
-		
-		
-		DFAgentDescription dfd = new DFAgentDescription();
-		ServiceDescription sd = new ServiceDescription();
-		sd.setType(BFSExploAgent.SERVICE_EXP);
-		dfd.addServices(sd);
-		
-		try {
-			DFAgentDescription[] result;
-			result = DFService.search(myAgent, dfd);
-			
-			/*System.out.println("Number of agents : "+result.length);
-			
-			for(int i=0; i<result.length; i++)
-			{
-				System.out.println("My AID is "+myAgent.getAID() +" and I want to send to "+result[i].getName());
-				if(!result[i].getName().equals(myAgent.getAID()))
+		if(graph.size()>0)
+		{
+			//send graph for the 2-neighbours
+
+			ACLMessage msg=new ACLMessage(ACLMessage.INFORM);
+			msg.setSender(this.myAgent.getAID());
+
+
+
+			DFAgentDescription dfd = new DFAgentDescription();
+			ServiceDescription sd = new ServiceDescription();
+			//sd.setType(BFSExploAgent.SERVICE_EXP);
+			dfd.addServices(sd);
+
+			try {
+				DFAgentDescription[] result;
+				result = DFService.search(myAgent, dfd);
+
+				System.out.println("Number of agents : "+result.length);
+
+				for(int i=0; i<result.length; i++)
 				{
-					msg.addReceiver(result[i].getName());
+					System.out.println("My AID is "+myAgent.getAID() +" and I want to send to "+result[i].getName());
+					if(!result[i].getName().equals(myAgent.getAID()))
+					{
+						msg.addReceiver(result[i].getName());
+					}
 				}
-			}*/
-			
+				/*
 			for(AID subscriber : graph_subscribers)
 			{
 				msg.addReceiver(subscriber);
 			}
-			
-			
-			//msg.addReceiver(graph_subscriber);
-			msg.setContentObject(graph);
-			((mas.abstractAgent)this.myAgent).sendMessage(msg);
-			System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent"+"\nTHE NUMBER OF RECEIVERS SHOULD BE ::::: "+graph_subscribers.size());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (FIPAException e) {
-			e.printStackTrace();
+				 */
+
+
+				//msg.addReceiver(graph_subscriber);
+				msg.setContentObject(graph);
+				((mas.abstractAgent)this.myAgent).sendMessage(msg);
+				System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent"+"\nTHE NUMBER OF RECEIVERS SHOULD BE ::::: "+graph_subscribers.size());
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (FIPAException e) {
+				e.printStackTrace();
+			}
 		}
-		
 
 	}
 
 	@Override
 	public boolean done() {
-		graph_subscribers.clear();
+		//graph_subscribers.clear();
 		return true;
 	}
 

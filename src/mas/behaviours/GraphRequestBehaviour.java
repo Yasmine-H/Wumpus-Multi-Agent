@@ -20,10 +20,12 @@ public class GraphRequestBehaviour extends SimpleBehaviour{
 	 * 
 	 */
 	private static final long serialVersionUID = 3774372518726847984L;
+	private String type;
 	
 
-	public GraphRequestBehaviour(final Agent myagent) {
+	public GraphRequestBehaviour(final Agent myagent, String type) {
 		super(myagent);
+		this.type = type;
 	}
 	
 	@Override
@@ -38,7 +40,7 @@ public class GraphRequestBehaviour extends SimpleBehaviour{
 		
 		DFAgentDescription dfd = new DFAgentDescription();
 		ServiceDescription sd = new ServiceDescription();
-		sd.setType(BFSExploAgent.SERVICE_EXP);
+		//sd.setType(BFSExploAgent.SERVICE_EXP);
 		dfd.addServices(sd);
 		
 		try {

@@ -1,11 +1,7 @@
 package mas.agents;
 
-
-
-
 import java.util.ArrayList;
 
-import env.EntityType;
 import env.Environment;
 import jade.core.AID;
 import jade.core.behaviours.FSMBehaviour;
@@ -17,24 +13,21 @@ import jade.lang.acl.ACLMessage;
 import mas.abstractAgent;
 import mas.behaviours.BFSWalkBehaviour;
 import mas.behaviours.CheckMailBoxBehaviour;
+import mas.behaviours.CollectorWalkBehaviour;
 import mas.behaviours.GraphRequestBehaviour;
-import mas.behaviours.InterblocageListenerBehaviour;
-import mas.behaviours.ReceiveGraphBehaviour;
+import mas.behaviours.SayHello;
 import mas.behaviours.SendGraphBehaviour;
-import mas.behaviours.SendInterblocageStartMessageBehaviour;
+import mas.behaviours.SiloWalkBehaviour;
 import mas.graph.Graph;
 
+public class SiloAgent extends abstractAgent {
 
-public class BFSExploAgent extends abstractAgent{
-
-	
-	public static final String SERVICE_EXP = "explorer";
-	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -1784844593772918360L;
+	private static final long serialVersionUID = 8889582860728748887L;
 
+	public static final String SERVICE_TANK = "tank";
 	public static final String STATE_WALK = "Walk";
 	public static final String STATE_DEADLOCK_REPORT = "Deadlock Report";
 	public static final String STATE_DEADLOCK_LISTENER = "Deadlock Listener";
@@ -46,20 +39,21 @@ public class BFSExploAgent extends abstractAgent{
 	public static final String STATE_GRAPH_SENDERS_LISTENER = "Graph Senders Listener"; //waits for agents to propose their graphs
 	public static final String STATE_GRAPH_RECEPTION = "Graph Reception";
 	public static final String STATE_SEND_GRAPH_REQUEST = "Graph Request";
-	
+
 	public static final String STATE_START_INTERBLOCAGE = "Interblocage Start Message";
 	public static final String STATE_INTERBLOCAGE_LISTENER = "Interblocage Listener";
 	public static final String STATE_CHECK_MAILBOX = "Check MailBox";
 	public static final String STATE_INTERBLOCAGE_RESOLUTION = "Interblocage Resolution";
 	public static final String STATE_GIVES_PRIORITY = "Interblocage Gives Priority";
-	
-	
+
+
 	private Graph graph;
 	private ArrayList<AID> receivers;
 	private ArrayList<AID> senders;
 	private ACLMessage interblocageMessage;
 	private ArrayList<AID> graph_subscribers;
-	//private String moveTo;
+
+
 	/**
 	 * This method is automatically called when "agent".start() is executed.
 	 * Consider that Agent is launched for the first time. 
@@ -70,12 +64,12 @@ public class BFSExploAgent extends abstractAgent{
 	protected void setup(){
 
 		super.setup();
-		
+
 		//registering into the DF 		
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
 		ServiceDescription sd = new ServiceDescription();
-		sd.setType(SERVICE_EXP);
+		sd.setType(SERVICE_TANK);
 		sd.setName(getLocalName());
 		dfd.addServices(sd);
 		try
@@ -86,46 +80,19 @@ public class BFSExploAgent extends abstractAgent{
 		{
 			fe.printStackTrace();
 		}
-		
-		
-		
+
+
 		//get the parameters given into the object[]. In the current case, the environment where the agent will evolve
 		final Object[] args = getArguments();
-		if(args!=null && args[0]!=null && args[1]!=null){
+		if(args[0]!=null){
 
-			deployAgent((Environment) args[0], (EntityType) args[1]);
+			deployAgent((Environment) args[0]);
 
 		}else{
 			System.err.println("Malfunction during parameter's loading of agent"+ this.getClass().getName());
 			System.exit(-1);
 		}
-		
-		graph = new Graph();
-		receivers = new ArrayList<>();
-		senders = new ArrayList<>();
-		graph_subscribers = new ArrayList<>();
-		interblocageMessage = new ACLMessage(ACLMessage.REQUEST);
-		
-		DFAgentDescription[] result;
-		try {
-			result = DFService.search(this, dfd);
-			for(int i=0; i<result.length; i++)
-			{
-				System.out.println("My AID is "+this.getAID() +" and I want to send to "+result[i].getName());
-				if(!result[i].getName().equals(this.getAID()))
-				{
-					receivers.add(result[i].getName());
-				}
-			}
 
-		} catch (FIPAException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-				
-		//Creating a finite-state machine
-		
 		FSMBehaviour fsm = new FSMBehaviour(this) {
 			public int onEnd() {
 				System.out.println("FSM behaviour ended");
@@ -134,18 +101,25 @@ public class BFSExploAgent extends abstractAgent{
 			}
 
 		};
-		
-		
-		fsm.registerFirstState(new BFSWalkBehaviour(this, graph, interblocageMessage), STATE_WALK);
+
+		graph = new Graph();
+		receivers = new ArrayList<>();
+		senders = new ArrayList<>();
+		graph_subscribers = new ArrayList<>();
+		interblocageMessage = new ACLMessage(ACLMessage.REQUEST);
+
+
+		fsm.registerFirstState(new SiloWalkBehaviour(this, graph), STATE_WALK);
 		fsm.registerState(new SendGraphBehaviour(this, graph, receivers, graph_subscribers), STATE_GRAPH_TRANSMISSION);
-		//fsm.registerState(new GraphRequestBehaviour(this, SERVICE_EXP), STATE_SEND_GRAPH_REQUEST);
-		
+		fsm.registerState(new GraphRequestBehaviour(this, SERVICE_TANK), STATE_SEND_GRAPH_REQUEST);
+
 		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)
 		//fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, interblocageMessage), STATE_START_INTERBLOCAGE);
 
 		//fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, interblocageMessage), STATE_INTERBLOCAGE_LISTENER);
 		//TODO 11.4.2018 : LAST ATTENTION
 		fsm.registerState(new CheckMailBoxBehaviour(this, graph, STATE_WALK, graph_subscribers), STATE_CHECK_MAILBOX);
+
 		/*
 		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.MOVED);
 		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.BLOCKED); // /!\TODO
@@ -153,23 +127,24 @@ public class BFSExploAgent extends abstractAgent{
 		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_TRANSMISSION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_TRANSMISSION);
 		fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
 		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_WALK, CheckMailBoxBehaviour.GOTO_STATE_WALK);
-		*/
-		
+		 */
+
 		fsm.registerTransition(STATE_WALK, STATE_GRAPH_TRANSMISSION, BFSWalkBehaviour.MOVED);
 		fsm.registerTransition(STATE_WALK, STATE_GRAPH_TRANSMISSION, BFSWalkBehaviour.BLOCKED); // /!\TODO
 		fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
 		//fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_TRANSMISSION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_TRANSMISSION);
 		//fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
 		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_WALK, CheckMailBoxBehaviour.GOTO_STATE_WALK);
-		
+
 		addBehaviour(fsm);
 
-		
-		
-		//addBehaviour(new BFSWalkBehaviour(this, graph));
-		/*addBehaviour(new SendGraphBehaviour(this, graph));
-		addBehaviour(new ReceiveGraphBehaviour(this, graph));
-		*/
+
+
+		/*
+		//Add the behaviours
+		addBehaviour(new SiloWalkBehaviour(this, graph));
+		addBehaviour(new SayHello(this));
+		 */
 		System.out.println("the agent "+this.getLocalName()+ " is started");
 
 	}
@@ -178,14 +153,7 @@ public class BFSExploAgent extends abstractAgent{
 	 * This method is automatically called after doDelete()
 	 */
 	protected void takeDown(){
-		try
-		{
-			DFService.deregister(this);
-		}
-		catch(FIPAException fe)
-		{
-			fe.printStackTrace();
-		}
+
 	}
-	
+
 }

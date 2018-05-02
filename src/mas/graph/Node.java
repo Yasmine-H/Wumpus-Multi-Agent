@@ -2,6 +2,7 @@ package mas.graph;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import env.Attribute;
@@ -94,7 +95,89 @@ public class Node implements Comparable, Serializable{
 		return this.getId().compareTo(((Node)node2).getId());
 	}
         
-        public Node clone(){
-            return new Node(this.id, this.neighbours, this.contentList, this.visited);
-        }
+	public Node clone(){
+		return new Node(this.id, this.neighbours, this.contentList, this.visited);
+	}
+
+	public boolean isBetterThan(Node node2, String treasureType) {
+
+		if(node2.getContentList().isEmpty()){ // the other node has no content (no treasure nor diamonds)
+			return true;
+		}
+
+		if(this.contentList.isEmpty()){ // the current node has no content while the other node has
+			return false;
+		}
+
+		//both have some content
+		int myContent = 0;
+		int node2Content = 0;
+
+		for(Attribute content : getContentList())
+		{
+			if(content.getName().equals(treasureType)){
+				myContent = (int)content.getValue();
+				break;
+			}
+		}
+		for(Attribute content : node2.getContentList())
+		{
+			if(content.getName().equals(treasureType)){
+				node2Content = (int)content.getValue();
+				break;
+			}
+		}
+
+		return (myContent >= node2Content);
+	}
+
+
+	public boolean hasChanged(List<Attribute> newContentList){
+
+
+		List<Attribute> myContentList = getContentList();
+
+
+		//they don't have the same size, so one of them has more treasure types than the other
+		if(myContentList.size()!=newContentList.size()){
+			return true;
+		}
+
+		//they have the same treasure types, we must compare their value
+		for(Attribute myContent : myContentList)
+		{
+			for(Attribute newContent : newContentList)
+			{
+				if(myContent.getName().equals(newContent.getName())){
+					if(myContent.getValue()!=newContent.getValue()){
+						return true;
+					}
+					else{
+						break;
+					}
+				}
+			}
+		}
+
+		return false;
+
+	}
+	/*
+	public ArrayList<Node> getShortestPathTo(Node goalNode){
+		ArrayList<Node> neighbourList = getNeighbours();
+		HashMap<Node, Node> node_parent_Start = new HashMap<Node, Node>();
+		HashMap<Node, Node> node_parent_End = new HashMap<Node, Node>();
+		
+		node_parent_Start.put(this, null);
+		node_parent_End.put(null, goalNode);
+		
+		ArrayList<Node> toExplore = (ArrayList<Node>) getNeighbours().clone(); 
+
+		
+		while(!node_parent_Start.containsValue(goalNode)){
+			
+			for(Node node : )
+		}
+	}
+	*/
 }

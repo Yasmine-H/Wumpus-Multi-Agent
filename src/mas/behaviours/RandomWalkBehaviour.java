@@ -21,10 +21,15 @@ import jade.core.behaviours.TickerBehaviour;
 
 public class RandomWalkBehaviour extends TickerBehaviour{
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4252105895839930559L;
+
+	/**
 	 * When an agent choose to move
 	 *  
 	 */
-	private static final long serialVersionUID = 9088209402507795289L;
+	
 
 	public RandomWalkBehaviour (final mas.abstractAgent myagent) {
 		super(myagent, 1000);

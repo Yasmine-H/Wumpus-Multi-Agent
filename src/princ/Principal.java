@@ -2,6 +2,13 @@ package princ;
 
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import env.EntityType;
+import env.Environment;
+import env.Environment.ENVtype;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
@@ -9,15 +16,9 @@ import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import mas.agents.BFSExploAgent;
-import env.EntityType;
-import env.Environment;
-import env.Environment.ENVtype;
+import mas.agents.CollectorAgent;
+import mas.agents.SiloAgent;
 
 
 public class Principal {
@@ -34,8 +35,8 @@ public class Principal {
 		System.out.println("Hello !");
 		//0) Create the real environment and the observed one
 
-		env= new Environment(ENVtype.GRID_T,4,null);
-		//env= new Environment(ENVtype.DOROGOVTSEV_T,8,null);
+		//env= new Environment(ENVtype.GRID_T,2,null);
+		env= new Environment(ENVtype.DOROGOVTSEV_T,8,null);
 		//env=new Environment("ressources/map2017-2","ressources/map2017-config");
 
 		
@@ -226,6 +227,7 @@ public class Principal {
 //		}
 //
 //
+		/*
 		//Agent0 on container0
 		c = containerList.get("container0");
 		agentName="Agent1";
@@ -239,21 +241,51 @@ public class Principal {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
 		
 		
 		//Agent2 on container0
-				c = containerList.get("container0");
-				agentName="Agent2";
-				try {
+		c = containerList.get("container0");
+		agentName="Explo1";
+		try {
 
-					Object[] objtab=new Object[]{env, EntityType.AGENT_EXPLORER};//used to give informations to the agent
-					AgentController	ag=c.createNewAgent(agentName,BFSExploAgent.class.getName(),objtab);
-					agentList.add(ag);
-					System.out.println(agentName+" launched");
-				} catch (StaleProxyException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			Object[] objtab=new Object[]{env, EntityType.AGENT_EXPLORER};//used to give informations to the agent
+			AgentController	ag=c.createNewAgent(agentName,BFSExploAgent.class.getName(),objtab);
+			agentList.add(ag);
+			System.out.println(agentName+" launched");
+		} catch (StaleProxyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			
+
+		
+		//Agent2 on container0
+		c = containerList.get("container0");
+		agentName="Collector1";
+		try {
+
+			Object[] objtab=new Object[]{env, EntityType.AGENT_COLLECTOR};//used to give informations to the agent
+			AgentController	ag=c.createNewAgent(agentName,CollectorAgent.class.getName(),objtab);
+			agentList.add(ag);
+			System.out.println(agentName+" launched");
+		} catch (StaleProxyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		c = containerList.get("container0");
+		agentName="Silo";
+		try {
+
+			Object[] objtab=new Object[]{env, EntityType.AGENT_TANKER};//used to give informations to the agent
+			AgentController	ag=c.createNewAgent(agentName,SiloAgent.class.getName(),objtab);
+			agentList.add(ag);
+			System.out.println(agentName+" launched");
+		} catch (StaleProxyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 //
 ////
 		/*
