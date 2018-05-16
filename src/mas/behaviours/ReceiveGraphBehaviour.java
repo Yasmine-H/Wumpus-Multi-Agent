@@ -8,6 +8,7 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
+import mas.agents.Constants;
 import mas.graph.Graph;
 
 
@@ -65,7 +66,7 @@ public class ReceiveGraphBehaviour extends SimpleBehaviour{
 				ACLMessage ackn=new ACLMessage(ACLMessage.CONFIRM);
 				ackn.setSender(this.myAgent.getAID());
 				ackn.addReceiver(msg.getSender());
-				ackn.setContent(CheckMailBoxBehaviour.MESSAGE_GRAPH_RECEIVED);
+				ackn.setContent(Constants.MESSAGE_GRAPH_RECEIVED);
 				((mas.abstractAgent)this.myAgent).sendMessage(ackn);
 				//System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");
 				

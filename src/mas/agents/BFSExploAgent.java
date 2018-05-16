@@ -17,11 +17,7 @@ import jade.lang.acl.ACLMessage;
 import mas.abstractAgent;
 import mas.behaviours.BFSWalkBehaviour;
 import mas.behaviours.CheckMailBoxBehaviour;
-import mas.behaviours.GraphRequestBehaviour;
-import mas.behaviours.InterblocageListenerBehaviour;
-import mas.behaviours.ReceiveGraphBehaviour;
 import mas.behaviours.SendGraphBehaviour;
-import mas.behaviours.SendInterblocageStartMessageBehaviour;
 import mas.graph.Graph;
 
 
@@ -35,24 +31,6 @@ public class BFSExploAgent extends abstractAgent{
 	 */
 	private static final long serialVersionUID = -1784844593772918360L;
 
-	public static final String STATE_WALK = "Walk";
-	public static final String STATE_DEADLOCK_REPORT = "Deadlock Report";
-	public static final String STATE_DEADLOCK_LISTENER = "Deadlock Listener";
-	public static final String STATE_DEADLOCK_SOLVING = "Deadlock Solving";
-	public static final String STATE_GRAPH_PROPOSITION = "Graph Proposition";
-	public static final String STATE_GRAPH_RECEIVERS_LISTENER = "Graph Receivers Listener"; //waits for agents interested in getting the graph
-	public static final String STATE_GRAPH_TRANSMISSION = "Graph Transmission";
-	public static final String STATE_GRAPH_AKN_LISTENER = "Graph Reception Acknowledgment Listener";
-	public static final String STATE_GRAPH_SENDERS_LISTENER = "Graph Senders Listener"; //waits for agents to propose their graphs
-	public static final String STATE_GRAPH_RECEPTION = "Graph Reception";
-	public static final String STATE_SEND_GRAPH_REQUEST = "Graph Request";
-	
-	public static final String STATE_START_INTERBLOCAGE = "Interblocage Start Message";
-	public static final String STATE_INTERBLOCAGE_LISTENER = "Interblocage Listener";
-	public static final String STATE_CHECK_MAILBOX = "Check MailBox";
-	public static final String STATE_INTERBLOCAGE_RESOLUTION = "Interblocage Resolution";
-	public static final String STATE_GIVES_PRIORITY = "Interblocage Gives Priority";
-	
 	
 	private Graph graph;
 	private ArrayList<AID> receivers;
@@ -136,8 +114,8 @@ public class BFSExploAgent extends abstractAgent{
 		};
 		
 		
-		fsm.registerFirstState(new BFSWalkBehaviour(this, graph, interblocageMessage), STATE_WALK);
-		fsm.registerState(new SendGraphBehaviour(this, graph, receivers, graph_subscribers), STATE_GRAPH_TRANSMISSION);
+		fsm.registerFirstState(new BFSWalkBehaviour(this, graph, interblocageMessage), Constants.STATE_WALK);
+		fsm.registerState(new SendGraphBehaviour(this, graph, receivers, graph_subscribers), Constants.STATE_GRAPH_TRANSMISSION);
 		//fsm.registerState(new GraphRequestBehaviour(this, SERVICE_EXP), STATE_SEND_GRAPH_REQUEST);
 		
 		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)
@@ -145,7 +123,7 @@ public class BFSExploAgent extends abstractAgent{
 
 		//fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, interblocageMessage), STATE_INTERBLOCAGE_LISTENER);
 		//TODO 11.4.2018 : LAST ATTENTION
-		fsm.registerState(new CheckMailBoxBehaviour(this, graph, STATE_WALK, graph_subscribers), STATE_CHECK_MAILBOX);
+		fsm.registerState(new CheckMailBoxBehaviour(this, graph, Constants.STATE_WALK, graph_subscribers), Constants.STATE_CHECK_MAILBOX);
 		/*
 		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.MOVED);
 		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.BLOCKED); // /!\TODO
@@ -155,12 +133,12 @@ public class BFSExploAgent extends abstractAgent{
 		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_WALK, CheckMailBoxBehaviour.GOTO_STATE_WALK);
 		*/
 		
-		fsm.registerTransition(STATE_WALK, STATE_GRAPH_TRANSMISSION, BFSWalkBehaviour.MOVED);
-		fsm.registerTransition(STATE_WALK, STATE_GRAPH_TRANSMISSION, BFSWalkBehaviour.BLOCKED); // /!\TODO
-		fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
+		fsm.registerTransition(Constants.STATE_WALK, Constants.STATE_GRAPH_TRANSMISSION, Constants.MOVED);
+		fsm.registerTransition(Constants.STATE_WALK, Constants.STATE_GRAPH_TRANSMISSION, Constants.BLOCKED); // /!\TODO
+		fsm.registerDefaultTransition(Constants.STATE_GRAPH_TRANSMISSION, Constants.STATE_CHECK_MAILBOX);
 		//fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_TRANSMISSION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_TRANSMISSION);
 		//fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
-		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_WALK, CheckMailBoxBehaviour.GOTO_STATE_WALK);
+		fsm.registerTransition(Constants.STATE_CHECK_MAILBOX, Constants.STATE_WALK, Constants.GOTO_STATE_WALK);
 		
 		addBehaviour(fsm);
 

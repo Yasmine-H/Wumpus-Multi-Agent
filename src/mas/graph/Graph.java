@@ -2,6 +2,7 @@ package mas.graph;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import env.Attribute;
@@ -15,11 +16,13 @@ public class Graph implements Serializable{
 	 */
 	private static final long serialVersionUID = -157157695933610988L;
 	private ArrayList<Node> graph;
+	private long latest_update;
 
 
 	public Graph()
 	{
 		graph=new ArrayList<>();
+		latest_update = System.currentTimeMillis();
 	}
 
 	public ArrayList<Node> getAllNodes(){
@@ -472,6 +475,18 @@ public String getClosestUnvisited2(String id, ArrayList<String> idsList) {
 		return true;
 	}
 
+	
+	public void sort(){
+		graph.sort(new Comparator<Node>() {
+
+			@Override
+			public int compare(Node node1, Node node2) {
+				
+				return node1.compareTo(node2);
+			}
+		});
+	}
+	
 	public Node getSiloPosition() {
 		int position = graph.size()/2 - 1;
 		String id[] = graph.get(0).getId().split(",");
@@ -486,7 +501,22 @@ public String getClosestUnvisited2(String id, ArrayList<String> idsList) {
 		
 	}
 	
-	
+	public Node getMeetingPosition(){
+		Node meetingNode = null;
+		int bestValue = 0;
+		
+		for(Node node : graph){
+			int value = node.getValue(new ArrayList<Node>());
+			System.out.println(node.getId()+" final value is ::::::::::: "+value);
+			if(meetingNode == null || value > bestValue){
+				meetingNode = node;
+				bestValue = value;
+			}
+		}
+		
+		return meetingNode;
+		
+	}
 	
 
 }

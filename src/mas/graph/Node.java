@@ -180,4 +180,39 @@ public class Node implements Comparable, Serializable{
 		}
 	}
 	*/
+
+	public int getValue(List<Node> considered) {
+		considered.add(this);
+		int nb_neighbours = getNeighbours().size();
+		if(nb_neighbours < 2){
+			System.out.println(this.getId()+" : value : 0");
+			return 0;
+		}
+		
+		else{
+			if(nb_neighbours == 2){
+				System.out.println(this.getId()+" : value : 1");
+				return 1;
+			}
+			else{
+				
+				
+				int value = nb_neighbours;
+				if(considered.size()==1){
+					value *= 2;
+					System.out.println(getId()+" is a parent : "+value);
+				}
+				
+				for(Node neighbour : getNeighbours()){
+					if(!considered.contains(neighbour))
+					{
+						value += neighbour.getValue(considered)-1;
+					}
+				}
+				
+				System.out.println(this.getId()+" : value : "+value);
+				return value;
+			}
+		}
+	}
 }

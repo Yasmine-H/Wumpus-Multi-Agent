@@ -7,20 +7,23 @@ import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
+import mas.agents.Constants;
 import mas.graph.Graph;
 
 public class CheckMailBoxBehaviour extends Behaviour{
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4296916477792239941L;
-	private String nextState;
+	/*
 	private static final int TIME_OUT = 3;
 	public static final int GOTO_STATE_WALK = 0;
 	public static final int GOTO_STATE_GRAPH_TRANSMISSION = 1;
 	public static final int GOTO_STATE_INTERBLOCAGE_RESOLUTION = 2;
 	public  static String MESSAGE_GRAPH_RECEIVED = "Message Received";
+	*/
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4296916477792239941L;
+	private String nextState;
 	private int result;
 	private ArrayList<AID> graph_subscribers;
 	private Graph graph;
@@ -31,7 +34,7 @@ public class CheckMailBoxBehaviour extends Behaviour{
 		this.graph = graph;
 		this.nextState = nextState;
 		this.graph_subscribers = graph_subscribers;
-		result = GOTO_STATE_WALK;
+		result = Constants.GOTO_STATE_WALK;
 		timer = 0;
 	}
 	
@@ -42,11 +45,12 @@ public class CheckMailBoxBehaviour extends Behaviour{
 		ACLMessage msg = myAgent.receive();
 		
 		if(msg != null) {
+			
 			System.out.println(myAgent.getLocalName()+"*******New message from *******"+msg.getSender().toString()+" content :"+msg.getContent());
 			switch(msg.getPerformative()){
 			case ACLMessage.REQUEST :
 				if(msg.getContent().contains("INTERBLOCAGE")) {
-					result = GOTO_STATE_INTERBLOCAGE_RESOLUTION;
+					result = Constants.GOTO_STATE_INTERBLOCAGE_RESOLUTION;
 				}
 				
 				break;
@@ -54,7 +58,7 @@ public class CheckMailBoxBehaviour extends Behaviour{
 				System.out.println(myAgent.getLocalName()+"New subscriber");
 				if(!graph_subscribers.contains(msg.getSender()))
 				graph_subscribers.add(msg.getSender());
-				result = GOTO_STATE_GRAPH_TRANSMISSION;
+				result = Constants.GOTO_STATE_GRAPH_TRANSMISSION;
 				break;
 				
 			case ACLMessage.CONFIRM : // Graph reception acknowledgement
@@ -71,7 +75,7 @@ public class CheckMailBoxBehaviour extends Behaviour{
 		else
 		{
 			System.out.println(myAgent.getLocalName()+" No more msgs :(");
-			result = GOTO_STATE_WALK;
+			result = Constants.GOTO_STATE_WALK;
 		}
 		
 		
@@ -93,7 +97,7 @@ public class CheckMailBoxBehaviour extends Behaviour{
 			ACLMessage ackn=new ACLMessage(ACLMessage.CONFIRM);
 			ackn.setSender(this.myAgent.getAID());
 			ackn.addReceiver(msg.getSender());
-			ackn.setContent(MESSAGE_GRAPH_RECEIVED);
+			ackn.setContent(Constants.MESSAGE_GRAPH_RECEIVED);
 			((mas.abstractAgent)this.myAgent).sendMessage(ackn);
 			//System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");
 			
@@ -110,7 +114,7 @@ public class CheckMailBoxBehaviour extends Behaviour{
 		boolean done = false;
 		timer++;
 		System.out.println(">>>>>Agent : "+myAgent.getLocalName()+" time : "+timer+"  and result : "+result);
-		if(timer == TIME_OUT || result != GOTO_STATE_WALK)
+		if(timer == Constants.TIME_OUT || result != Constants.GOTO_STATE_WALK)
 		{
 			done = true;
 			timer = 0;
