@@ -198,6 +198,44 @@ public class Graph implements Serializable{
             //else : all nodes have already been visited
             return null;
         }
+        
+        public ArrayList<Node> getPathToGivenNode(Node currentNode, String finalNodeId){
+            //toExplore is the FIFO of nodes to explore
+            //System.out.println(currentNode.getNeighbours().toString());
+            ArrayList<Node> toExplore = (ArrayList<Node>) currentNode.getNeighbours().clone(); 
+            //the father relation: the first composant represents the node we have reached, the second represents its father on the path
+            HashMap<Node, Node> cameFrom = new HashMap<Node, Node>();
+            
+            //the node in which we are starting doesn't have any father
+            cameFrom.put(currentNode, null);
+            
+            //for each neighbour of currentNode, currentNode is its father
+            for(Node node: toExplore)    
+                cameFrom.put(node, currentNode);
+            
+            
+            //while the FIFO is not empty (i.e. there is a node we didn't take into account in our BFS)	
+            while(!toExplore.isEmpty()){
+                //we pop up the first element of the FIFO
+            	Node newVisited = toExplore.remove(0);
+                
+            	//if we have found the node we are looking for :
+                if(newVisited.getId().equalsIgnoreCase(finalNodeId)){
+                    //System.out.println(cameFrom.toString());
+                    return pathReconstruction(newVisited, cameFrom);
+                }
+                //else:
+                for(Node neighbour: newVisited.getNeighbours()){
+                    if(!toExplore.contains(neighbour) && !cameFrom.containsKey(neighbour)){
+                        toExplore.add(neighbour);
+                        cameFrom.put(neighbour, newVisited);
+                    }
+                }
+            }
+            
+            //else : all nodes have already been visited
+            return null;
+        }
         /*
 	public String getClosestUnvisited(String id, ArrayList<Couple<String, String>> coupleIdsList) {
 		
