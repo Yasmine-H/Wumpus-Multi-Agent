@@ -35,9 +35,9 @@ public class Principal {
 		System.out.println("Hello !");
 		//0) Create the real environment and the observed one
 
-		//env= new Environment(ENVtype.GRID_T,2,null);
-		//env= new Environment(ENVtype.DOROGOVTSEV_T,8,null);
-		env=new Environment("ressources/map2017-2","ressources/map2017-config");
+		env= new Environment(ENVtype.GRID_T,1,null);
+//		env= new Environment(ENVtype.DOROGOVTSEV_T,2,null);
+//		env=new Environment("ressources/map2017-2","ressources/map2017-config");
 
 		
 		//1), create the platform (Main container (DF+AMS) + containers + monitoring agents : RMA and SNIFFER)
@@ -108,18 +108,18 @@ public class Principal {
 		containerList.put(containerName, containerRef);
 
 		//create the container1	
-		containerName="container1";
-		pContainer = new ProfileImpl(null, 8888, null);
-		System.out.println("Launching container "+pContainer);
-		containerRef = rt.createAgentContainer(pContainer); //ContainerController replace AgentContainer in the new versions of Jade.
-		containerList.put(containerName, containerRef);
-
-		//create the container2	
-		containerName="container2";
-		pContainer = new ProfileImpl(null, 8888, null);
-		System.out.println("Launching container "+pContainer);
-		containerRef = rt.createAgentContainer(pContainer); //ContainerController replace AgentContainer in the new versions of Jade.
-		containerList.put(containerName, containerRef);
+//		containerName="container1";
+//		pContainer = new ProfileImpl(null, 8888, null);
+//		System.out.println("Launching container "+pContainer);
+//		containerRef = rt.createAgentContainer(pContainer); //ContainerController replace AgentContainer in the new versions of Jade.
+//		containerList.put(containerName, containerRef);
+//
+//		//create the container2	
+//		containerName="container2";
+//		pContainer = new ProfileImpl(null, 8888, null);
+//		System.out.println("Launching container "+pContainer);
+//		containerRef = rt.createAgentContainer(pContainer); //ContainerController replace AgentContainer in the new versions of Jade.
+//		containerList.put(containerName, containerRef);
 
 		System.out.println("Launching containers done");
 		return containerList;
@@ -245,35 +245,35 @@ public class Principal {
 		
 		
 		//Agent2 on container0
-		c = containerList.get("container0");
+//		c = containerList.get("container0");
 		
 		
 		//Explo agents
-		agentName="Explo1";
-		try {
+//		agentName="Explo1";
+//		try {
+//
+//			Object[] objtab=new Object[]{env, EntityType.AGENT_EXPLORER};//used to give informations to the agent
+//			AgentController	ag=c.createNewAgent(agentName,BFSExploAgent.class.getName(),objtab);
+//			agentList.add(ag);
+//			System.out.println(agentName+" launched");
+//		} catch (StaleProxyException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		agentName="Explo2";
+//		try {
+//
+//			Object[] objtab=new Object[]{env, EntityType.AGENT_EXPLORER};//used to give informations to the agent
+//			AgentController	ag=c.createNewAgent(agentName,BFSExploAgent.class.getName(),objtab);
+//			agentList.add(ag);
+//			System.out.println(agentName+" launched");
+//		} catch (StaleProxyException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
-			Object[] objtab=new Object[]{env, EntityType.AGENT_EXPLORER};//used to give informations to the agent
-			AgentController	ag=c.createNewAgent(agentName,BFSExploAgent.class.getName(),objtab);
-			agentList.add(ag);
-			System.out.println(agentName+" launched");
-		} catch (StaleProxyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
-		agentName="Explo2";
-		try {
-
-			Object[] objtab=new Object[]{env, EntityType.AGENT_EXPLORER};//used to give informations to the agent
-			AgentController	ag=c.createNewAgent(agentName,BFSExploAgent.class.getName(),objtab);
-			agentList.add(ag);
-			System.out.println(agentName+" launched");
-		} catch (StaleProxyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		/*
 		
 		//Agent2 on container0
 		c = containerList.get("container0");
@@ -290,18 +290,18 @@ public class Principal {
 		}
 
 		
-		agentName="Collector2";
-		try {
+//		agentName="Collector2";
+//		try {
+//
+//			Object[] objtab=new Object[]{env, EntityType.AGENT_COLLECTOR};//used to give informations to the agent
+//			AgentController	ag=c.createNewAgent(agentName,CollectorAgent.class.getName(),objtab);
+//			agentList.add(ag);
+//			System.out.println(agentName+" launched");
+//		} catch (StaleProxyException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
-			Object[] objtab=new Object[]{env, EntityType.AGENT_COLLECTOR};//used to give informations to the agent
-			AgentController	ag=c.createNewAgent(agentName,CollectorAgent.class.getName(),objtab);
-			agentList.add(ag);
-			System.out.println(agentName+" launched");
-		} catch (StaleProxyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-*/
 		c = containerList.get("container0");
 		
 		agentName="Silo";

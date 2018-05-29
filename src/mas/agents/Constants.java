@@ -23,7 +23,7 @@ public class Constants {
 	public static final int MOVED = 1;
 	public static final int BLOCKED = 0;
 
-	
+	public static final int SEND_GRAPH = 3;
 	public static final int TIME_OUT = 2;
 	public static final int GOTO_STATE_WALK = 0;
 	public static final int GOTO_STATE_GRAPH_TRANSMISSION = 1;

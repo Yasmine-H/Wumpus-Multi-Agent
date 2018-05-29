@@ -12,6 +12,7 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import mas.agents.BFSExploAgent;
+import mas.agents.Constants;
 import mas.graph.Graph;
 
 /**
@@ -30,65 +31,75 @@ public class SendGraphBehaviour extends SimpleBehaviour{
 	
 	private Graph graph;
 	private ArrayList<AID> graph_subscribers;
+	private int count;
+	
 	
 	public SendGraphBehaviour (final Agent myagent, Graph graph, ArrayList<AID> receivers, ArrayList<AID> graph_subscribers) {
 		super(myagent);
 		this.graph=graph;
 		this.graph_subscribers=graph_subscribers;
+		this.count = 0;
 	}
 
 	@Override
 	public void action() {
 		//String myPosition=((mas.abstractAgent)this.myAgent).getCurrentPosition();
-		System.out.println(myAgent.getLocalName()+"************************SendGraphBehaviour****************************");
+		System.out.println(myAgent.getLocalName()+"************************SendGraphBehaviour**************************** count : "+count);
 		
-		if(graph.size()>0)
+		if(count == Constants.SEND_GRAPH) // send graph
 		{
-			//send graph for the 2-neighbours
-
-			ACLMessage msg=new ACLMessage(ACLMessage.INFORM);
-			msg.setSender(this.myAgent.getAID());
-
-
-
-			DFAgentDescription dfd = new DFAgentDescription();
-			ServiceDescription sd = new ServiceDescription();
-			//sd.setType(BFSExploAgent.SERVICE_EXP);
-			dfd.addServices(sd);
-
-			try {
-				DFAgentDescription[] result;
-				result = DFService.search(myAgent, dfd);
-
-				System.out.println("Number of agents : "+result.length);
-
-				for(int i=0; i<result.length; i++)
-				{
-					System.out.println("My AID is "+myAgent.getAID() +" and I want to send to "+result[i].getName());
-					if(!result[i].getName().equals(myAgent.getAID()))
-					{
-						msg.addReceiver(result[i].getName());
-					}
-				}
-				/*
-			for(AID subscriber : graph_subscribers)
+			count = 0;
+			if(graph.size()>0)
 			{
-				msg.addReceiver(subscriber);
-			}
-				 */
-
-
-				//msg.addReceiver(graph_subscriber);
-				msg.setContentObject(graph);
-				((mas.abstractAgent)this.myAgent).sendMessage(msg);
-				System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent"+"\nTHE NUMBER OF RECEIVERS SHOULD BE ::::: "+graph_subscribers.size());
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (FIPAException e) {
-				e.printStackTrace();
+				//send graph for the 2-neighbours
+	
+				ACLMessage msg=new ACLMessage(ACLMessage.INFORM);
+				msg.setSender(this.myAgent.getAID());
+	
+	
+	
+				DFAgentDescription dfd = new DFAgentDescription();
+				ServiceDescription sd = new ServiceDescription();
+				//sd.setType(BFSExploAgent.SERVICE_EXP);
+				dfd.addServices(sd);
+	
+				try {
+					DFAgentDescription[] result;
+					result = DFService.search(myAgent, dfd);
+	
+					System.out.println("Number of agents : "+result.length);
+	
+					for(int i=0; i<result.length; i++)
+					{
+						System.out.println("My AID is "+myAgent.getAID() +" and I want to send to "+result[i].getName());
+						if(!result[i].getName().equals(myAgent.getAID()))
+						{
+							msg.addReceiver(result[i].getName());
+						}
+					}
+					/*
+				for(AID subscriber : graph_subscribers)
+				{
+					msg.addReceiver(subscriber);
+				}
+					 */
+	
+	
+					//msg.addReceiver(graph_subscriber);
+					msg.setContentObject(graph);
+					((mas.abstractAgent)this.myAgent).sendMessage(msg);
+					System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent"+"\nTHE NUMBER OF RECEIVERS SHOULD BE ::::: "+graph_subscribers.size());
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (FIPAException e) {
+					e.printStackTrace();
+				}
 			}
 		}
-
+		
+		else{
+			count ++;
+		}
 	}
 
 	@Override

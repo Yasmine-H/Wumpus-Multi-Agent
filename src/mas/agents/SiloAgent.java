@@ -94,6 +94,7 @@ public class SiloAgent extends abstractAgent {
 		fsm.registerFirstState(new SiloWalkBehaviour(this, graph), Constants.STATE_WALK);
 		fsm.registerState(new SendGraphBehaviour(this, graph, receivers, graph_subscribers), Constants.STATE_GRAPH_TRANSMISSION);
 		fsm.registerState(new GraphRequestBehaviour(this, SERVICE_TANK), Constants.STATE_SEND_GRAPH_REQUEST);
+	
 
 		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)
 		//fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, interblocageMessage), STATE_START_INTERBLOCAGE);

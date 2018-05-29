@@ -42,7 +42,7 @@ public class SiloWalkBehaviour extends SimpleBehaviour {
 
 
 		if (myPosition!=""){
-			
+			System.out.println(myAgent.getLocalName()+" position = "+myPosition);
 			//List of observable from the agent's current position
 			List<Couple<String,List<Attribute>>> lobs=((mas.abstractAgent)this.myAgent).observe();//myPosition
 			
@@ -66,6 +66,9 @@ public class SiloWalkBehaviour extends SimpleBehaviour {
 					boolean moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo); //
 					System.out.println("!!!!!!!!!!!!!!!!!!SILO MOVING TOOOOOO :: "+moveTo+" bc position is : "+path.get(1).getId()+
 								"\n and complete path is "+path.toString()+" and result is : "+moved);
+					if(moved && moveTo.equals(myPosition)){
+						inMeetingPosition = true;
+					}
 				}
 				
 				

@@ -412,14 +412,39 @@ public String getClosestUnvisited2(String id, ArrayList<String> idsList) {
 
 	}
 
-	public Node getBestNode(String treasureType){
+	public Node getBestNode(Node currentNode, String treasureType, int freeSpace){
 		Node bestNode = null;
+		double bestValue = 0; //defined as treasure value/distance
 		for(Node node : graph){
-			if(bestNode==null || node.isBetterThan(bestNode, treasureType)){
-				bestNode=node;
+			if(!node.equals(currentNode))
+			{
+				double nodeValue = getUtility(currentNode, node, treasureType, freeSpace); 
+				if(nodeValue != 0 && (bestNode == null || bestValue < nodeValue)){
+					bestNode = node;
+					bestValue = nodeValue;
+					System.out.println("!!!!! new best node : "+node.getId()+" with value :: "+nodeValue);
+				}
 			}
 		}
 		return bestNode;
+	}
+	
+	
+	public double getUtility(Node currentNode, Node goalNode, String treasureType, int freeSpace){ //utility = (freeSpace - treasureValue)/distance
+		System.out.println(goalNode.getTreasureValue(treasureType));
+		System.out.println(">>>current "+currentNode.getId());
+		System.out.println(">>>goal : "+goalNode);
+		System.out.println(getPath(currentNode, goalNode));
+		int difference = freeSpace - goalNode.getTreasureValue(treasureType) + 1;
+		if(difference == freeSpace + 1)
+		{
+			return 0;
+		}
+		
+		if(difference < 1){
+			difference = 1;
+		}
+		return difference/getPath(currentNode, goalNode).size();
 	}
 	
 	public ArrayList<Node> getPath(Node currentNode, Node goalNode){
@@ -506,11 +531,14 @@ public String getClosestUnvisited2(String id, ArrayList<String> idsList) {
 		int bestValue = 0;
 		
 		for(Node node : graph){
-			int value = node.getValue(new ArrayList<Node>());
-			System.out.println(node.getId()+" final value is ::::::::::: "+value);
-			if(meetingNode == null || value > bestValue){
-				meetingNode = node;
-				bestValue = value;
+			if(node.getContentList().isEmpty())
+			{
+				int value = node.getNeighbourhoodValue(new ArrayList<Node>());
+	//			System.out.println(node.getId()+" final value is ::::::::::: "+value);
+				if(meetingNode == null || value > bestValue){
+					meetingNode = node;
+					bestValue = value;
+				}
 			}
 		}
 		

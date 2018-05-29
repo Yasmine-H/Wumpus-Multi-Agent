@@ -7,6 +7,7 @@ import java.util.List;
 import env.Attribute;
 import env.Couple;
 import jade.core.behaviours.SimpleBehaviour;
+import mas.agents.SiloAgent;
 import mas.graph.Graph;
 import mas.graph.Node;
 
@@ -21,7 +22,7 @@ public class CollectorWalkBehaviour extends SimpleBehaviour {
 	private String moveTo;
 	private boolean moved = false;
 	private boolean fullyExplored = false;
-	
+	private boolean done = false;
 	
 	public CollectorWalkBehaviour (final mas.abstractAgent myagent, Graph graph) {
 		super(myagent);
@@ -43,7 +44,7 @@ public class CollectorWalkBehaviour extends SimpleBehaviour {
 		if (myPosition!=""){
 		
 			// empty backpack if possible 
-			((mas.abstractAgent)this.myAgent).emptyMyBackPack("Silo");
+			System.out.println("result of empty : "+((mas.abstractAgent)this.myAgent).emptyMyBackPack("Silo"));
 			System.out.println(myAgent.getLocalName()+" : the remaining backpack capacity after calling to empty is: "+ ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace());
 			
 		
@@ -64,7 +65,7 @@ public class CollectorWalkBehaviour extends SimpleBehaviour {
 		
 	}
 
-private void collectionWalk(List<Couple<String, List<Attribute>>> lobs) {
+	private void collectionWalk(List<Couple<String, List<Attribute>>> lobs) {
 	
 		System.out.println(myAgent.getLocalName()+"************************CollectionWalk****************************");
 		
@@ -72,37 +73,52 @@ private void collectionWalk(List<Couple<String, List<Attribute>>> lobs) {
 		List<Attribute> lattribute= lobs.get(0).getRight();
 		Node currentNode = graph.getNode(id);
 		
+		if(((mas.abstractAgent)this.myAgent).getBackPackFreeSpace() > 0)
+		{
+			//collect the treasure
 		
-		//collect the treasure
-		boolean b = collectTreasure(lattribute);
+			boolean b = collectTreasure(lattribute);
 		
-		//update graph
-		if(b){
+			//update graph
+			if(b){
 			List<Couple<String,List<Attribute>>> new_lobs=((mas.abstractAgent)this.myAgent).observe(); 
 			List<Attribute> newContentList = new_lobs.get(0).getRight();
 			currentNode.setContent(newContentList);
+			}
 		}
-		
-		//next move planification	TODO
+		//next move planification	
 		Node goalNode;
 		if(((mas.abstractAgent)this.myAgent).getBackPackFreeSpace() < 10){
 			goalNode = graph.getSiloPosition(); //we must empty the backpack
 		}
 		else //there is enough space
 		{
-			goalNode = graph.getBestNode(treasureType);
+			goalNode = graph.getBestNode(currentNode, treasureType, ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace());
+		
+			
+			
+			if(goalNode == null){ //if there is no more treasure to take, we go back to the silo
+				goalNode = graph.getSiloPosition();
+				System.out.println("no more treasure :(");
+			}
+			else
+			{
+				System.out.println("The best node is : "+goalNode.getId());
+			}
 		}
 		ArrayList<Node> path = graph.getPath(currentNode, goalNode);
+		
 		
 		if(path!=null){
 			
 			moveTo = path.get(1).getId();
 			boolean moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo); //
-			System.out.println("!!!!!!!!!!!!!!!!!!MOVING TOOOOOO :: "+moveTo+" bc bestNode is : "+goalNode.getId()+
+			System.out.println(myAgent.getLocalName()+"!!!!!!!!!!!!!!!!!!MOVING TOOOOOO :: "+moveTo+" bc bestNode is : "+goalNode.getId()+
 					"\n and complete path is "+path.toString());
 		}
-		else{
+		else{ 
 			System.out.println(myAgent.getLocalName()+" ERROR path to "+goalNode+" is null :o");
+			
 		}
 		
 	}
@@ -177,13 +193,20 @@ private void collectionWalk(List<Couple<String, List<Attribute>>> lobs) {
 		else{
 			if(pathToTheClosest.get(0).getId().equalsIgnoreCase(id)){ //if the first node of the path is the current node, which is normally the case 
 				//TODO 26.2.: it shouldn't be the case, it is not very proper like this!
-				pathToTheClosest.remove(graph.getNode(id));
+				pathToTheClosest.remove(0);
 				//System.out.println("Exploration de "+myAgent.getLocalName());
 				//graph.printNodes();
 				moveTo = pathToTheClosest.get(0).getId();
+				try {
+					System.out.println("Press Enter in the console to allow the agent "+this.myAgent.getLocalName() +" to execute its next move");
+					System.in.read();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				System.out.println(myAgent.getName()+" Node to visit : "+pathToTheClosest.get(0).getId());
 				moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo); //we visit the first next node on the path
 
-				System.out.println(myAgent.getName()+" Node to visit : "+pathToTheClosest.get(0).getId());
+				
 			}
 		}
 
