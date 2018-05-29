@@ -141,7 +141,7 @@ public class BFSExploAgent extends abstractAgent{
 		};
 		
 		
-		fsm.registerFirstState(new BFSWalkBehaviour(this, graph, moveTo), STATE_WALK);
+		fsm.registerFirstState(new BFSWalkBehaviour(this, graph, moveTo, previousState), STATE_WALK);
 		fsm.registerState(new SendGraphBehaviour(this, graph, receivers, graph_subscribers), STATE_GRAPH_TRANSMISSION);
 		fsm.registerState(new ReceiveGraphBehaviour(this, graph, senders), STATE_GRAPH_RECEPTION);
 		fsm.registerState(new GraphRequestBehaviour(this), STATE_SEND_GRAPH_REQUEST);
@@ -149,10 +149,10 @@ public class BFSExploAgent extends abstractAgent{
 		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)
 		fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, previousState), STATE_START_INTERBLOCAGE);
 
-		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers), STATE_INTERBLOCAGE_LISTENER);
+		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, moveTo), STATE_INTERBLOCAGE_LISTENER);
 		//TODO 11.4.2018 : LAST ATTENTION
-		fsm.registerState(new CheckMailBoxBehaviour(this, graph, new StringBuilder(STATE_WALK), previousState, graph_subscribers, interblocageMessage), STATE_CHECK_MAILBOX);
-		fsm.registerState(new InterblocageResolutionBehaviour(this, graph, interblocageMessage), STATE_INTERBLOCAGE_RESOLUTION);
+		fsm.registerState(new CheckMailBoxBehaviour(this, graph, new StringBuilder(STATE_WALK), previousState, graph_subscribers, interblocageMessage, moveTo), STATE_CHECK_MAILBOX);
+		fsm.registerState(new InterblocageResolutionBehaviour(this, graph, interblocageMessage, moveTo), STATE_INTERBLOCAGE_RESOLUTION);
 		//fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.MOVED);
 		
 		//fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.BLOCKED); // /!\TODO
@@ -201,6 +201,14 @@ public class BFSExploAgent extends abstractAgent{
 	
 	public StringBuilder getMoveTo() {
 		return moveTo;
+	}
+	
+	public ACLMessage getInterblocageMessage() {
+		return interblocageMessage;
+	}
+	
+	public void setInterblocageMessage(ACLMessage msg) {
+		interblocageMessage = msg;
 	}
 	
 }
