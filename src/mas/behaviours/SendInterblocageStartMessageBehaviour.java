@@ -55,9 +55,12 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 			
 				for(int i=0; i<result.length; i++)
 				{
-					System.out.println("My AID is "+myAgent.getAID() +" and I want to send to "+result[i].getName());
+					//System.out.println("My AID is "+myAgent.getAID() +" and I want to send to "+result[i].getName());
+					//System.out.println("new receiver : "+result[i]+" myAgent.getAId() : "+myAgent.getAID());
 					if(!result[i].getName().equals(myAgent.getAID()))
 					{
+						//System.out.println("IN IF ...................");
+						//System.out.println("new receiver : "+result[i]+" myAgent.getAId() : "+myAgent.getAID());
 						msg.addReceiver(result[i].getName());
 						
 					}
@@ -70,11 +73,11 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 			
 			//we want the response in 3 seconds
 			//TODO 10.4: Define "3 seconds" as a constant (should be the same for each message)
-			msg.setReplyByDate(new Date(System.currentTimeMillis() + 3000));
-			System.out.println(">>Agent : "+this.myAgent.getLocalName()+"  msg "+msg+" to be sent");
+			//msg.setReplyByDate(new Date(System.currentTimeMillis() + 3000));
+			//System.out.println(">>Agent : "+this.myAgent.getLocalName()+"  msg "+msg+" to be sent");
 			//((mas.abstractAgent)this.myAgent).sendMessage(msg);
 			((mas.abstractAgent)this.myAgent).sendMessage(msg);
-			System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");
+			//System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");
 			
 		} catch (FIPAException e) {
 			e.printStackTrace();

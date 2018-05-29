@@ -9,6 +9,7 @@ import env.Couple;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import mas.abstractAgent;
+import mas.agents.BFSExploAgent;
 import mas.graph.Graph;
 import mas.graph.Node;
 
@@ -38,20 +39,24 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 	private boolean fullyExplored = false;
 	private boolean moved = false;
 	private StringBuilder moveTo;
+	private StringBuilder previousState;
 	
-	public BFSWalkBehaviour (final mas.abstractAgent myagent, Graph graph /*ArrayList<Node> graph*/, StringBuilder moveTo) {
+	public BFSWalkBehaviour (final mas.abstractAgent myagent, Graph graph /*ArrayList<Node> graph*/, StringBuilder moveTo, StringBuilder previousState) {
 		super(myagent);
 		this.graph = graph;
 		//super(myagent);
 		this.moveTo = moveTo;
+		this.previousState = previousState;
 	}
 
 	@Override
 	public void action() {
 		//Example to retrieve the current position
 		String myPosition=((mas.abstractAgent)this.myAgent).getCurrentPosition();
-		
-		
+		if(fullyExplored) {
+			
+		}
+		else {
 		
 		if (myPosition!=""){
 			//List of observable from the agent's current position
@@ -180,26 +185,54 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 			
 			//System.out.println("Before calling nexttovisit, the neighbours are : "+graph.getNode(id).getNeighbours().toString()+" and listNeighbours : "+listNeighboursId.toString());
 			//String idToVisit = graph.getClosestUnvisited(id, new ArrayList<Couple<String,String>>()); 
-			
-                        ArrayList<Node> pathToTheClosest = graph.getPathToClosestUnvisited(graph.getNode(id));
-                        if(pathToTheClosest == null){
-                            System.out.println("The graph has been fully explored ! List of nodes : \n");
-                            fullyExplored = true ;
-                            //graph.printNodes();
-                        }
-                        else{
-                            if(pathToTheClosest.get(0).getId().equalsIgnoreCase(id)){ //if the first node of the path is the current node, which is normally the case 
-                            //TODO 26.2.: it shouldn't be the case, it is not very proper like this!
-                               pathToTheClosest.remove(graph.getNode(id));
-                               //System.out.println("Exploration de "+myAgent.getLocalName());
-                               //graph.printNodes();
-                               moveTo = moveTo.replace(0, moveTo.length(),pathToTheClosest.get(0).getId());
-                               moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString()); //we visit the first next node on the path
+						System.out.println("MOVE TO AU DEBUT : "+moveTo);
+						if(moveTo.toString().equals("")) {
+							ArrayList<Node> pathToTheClosest = graph.getPathToClosestUnvisited(graph.getNode(id));
+							if(pathToTheClosest == null){
+								System.out.println("The graph has been fully explored ! List of nodes : \n");
+								fullyExplored = true ;
+								//graph.printNodes();
+							}
+							else{
+								if(pathToTheClosest.get(0).getId().equalsIgnoreCase(id)){ //if the first node of the path is the current node, which is normally the case 
+									//TODO 26.2.: it shouldn't be the case, it is not very proper like this!
+									pathToTheClosest.remove(graph.getNode(id));
+								}
+								//System.out.println("Exploration de "+myAgent.getLocalName());
+								//graph.printNodes();
+								moveTo = moveTo.replace(0, moveTo.length(),pathToTheClosest.get(0).getId());
+								moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString()); //we visit the first next node on the path
                                
-                               //System.out.println("Node to visit : "+pathToTheClosest.get(0).getId());
-                            }
-                        }
-            
+								//System.out.println("Node to visit : "+pathToTheClosest.get(0).getId());
+								
+							}
+						}
+						else { //we know where we want to move
+							System.out.println(" ................ MOVE TO : "+moveTo);
+							System.out.println(graph.getNode(id));
+							
+							ArrayList<Node> pathToMoveTo = graph.getPathToGivenNode(graph.getNode(id), moveTo.toString());
+							System.out.println(pathToMoveTo);
+							try {
+								if(pathToMoveTo.get(0).getId().equalsIgnoreCase(id)) {
+									pathToMoveTo.remove(graph.getNode(id));
+								}
+								if(pathToMoveTo.size() == 1) { //we can reach directly the desired state
+									moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString());
+									//moveTo.replace(0, moveTo.length(), "");
+								}
+								else {
+									moved = ((mas.abstractAgent)this.myAgent).moveTo(pathToMoveTo.get(0).getId());
+								}
+							}
+							catch(Exception e) {
+								if(!moveTo.toString().equalsIgnoreCase(graph.getNode(id).getId()))
+									moved = false;
+								else
+									moved = true;
+							}
+						}
+		}
 		}
 
 	}
@@ -208,13 +241,19 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 	public boolean done() {
 		// TODO 
 		//return fullyExplored;
+		this.previousState.replace(0, this.previousState.length(), BFSExploAgent.STATE_START_INTERBLOCAGE);
 		return true;
 	}
 	
 	public int onEnd(){
 		// TODO 28.2 : FSMBehaviour start moving to inform the other agents
-		if(moved)
+		if(moved) {
+			if(moveTo.toString().equalsIgnoreCase(((abstractAgent) myAgent).getCurrentPosition())) {
+				moveTo.replace(0, moveTo.length(), "");
+			}
+			//
 			return MOVED;
+		}
 		else {
 			return BLOCKED;
 		}

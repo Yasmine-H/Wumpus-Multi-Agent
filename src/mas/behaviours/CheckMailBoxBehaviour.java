@@ -10,6 +10,7 @@ import jade.lang.acl.UnreadableException;
 import mas.abstractAgent;
 import mas.agents.BFSExploAgent;
 import mas.graph.Graph;
+import mas.graph.Node;
 
 public class CheckMailBoxBehaviour extends Behaviour{
 	
@@ -19,6 +20,7 @@ public class CheckMailBoxBehaviour extends Behaviour{
 	public static final int GOTO_STATE_GRAPH_TRANSMISSION = 1;
 	public static final int GOTO_STATE_INTERBLOCAGE_RESOLUTION = 2;
 	public static final int GOTO_STATE_INTERBLOCAGE_LISTENER = 4;
+	public static final int GOTO_GIVES_PRIORITY = 5;
 	public  static String MESSAGE_GRAPH_RECEIVED = "Message Received";
 	private int result;
 	private ArrayList<AID> graph_subscribers;
@@ -27,14 +29,17 @@ public class CheckMailBoxBehaviour extends Behaviour{
 	private int timer;
 	private StringBuilder previousState;
 	
+	private StringBuilder moveTo;
 	
-	public CheckMailBoxBehaviour(mas.abstractAgent myAgent, Graph graph, StringBuilder nextState, StringBuilder previousState, ArrayList<AID> graph_subscribers, ACLMessage interblocageMessage) {
+	
+	public CheckMailBoxBehaviour(mas.abstractAgent myAgent, Graph graph, StringBuilder nextState, StringBuilder previousState, ArrayList<AID> graph_subscribers, ACLMessage interblocageMessage, StringBuilder moveTo) {
 		super(myAgent);
 		this.graph = graph;
 		this.nextState = nextState;
 		this.graph_subscribers = graph_subscribers;
 		this.previousState = previousState;
 		this.interblocageMessage = interblocageMessage;
+		this.moveTo = moveTo;
 		
 		result = -1;
 		timer = 0;
@@ -49,6 +54,28 @@ public class CheckMailBoxBehaviour extends Behaviour{
 		if(msg != null) {
 			System.out.println(myAgent.getLocalName()+"*******New message from *******"+msg.getSender().toString()+" content :"+msg.getContent());
 			switch(msg.getPerformative()){
+			case ACLMessage.AGREE : //INTERBLOCAGE RESOLUTION - we have a priority
+				System.out.println(myAgent.getLocalName()+" has priority! It will move.");
+				result = GOTO_STATE_WALK;
+				break;
+			case ACLMessage.REFUSE : //
+				System.out.println(myAgent.getLocalName()+" has to give priority! It will go to the state GivePriorityBehaviour.");
+				if(msg.getContent().contains("move to :")) {
+					String[] lineParts = msg.getContent().split(":");
+					moveTo.replace(0, moveTo.length(), lineParts[lineParts.length - 1].trim());	
+				}
+				else {
+					ArrayList<Node> neighbours = graph.getAllNodes();
+					for(Node node :neighbours) {
+						
+						boolean moved = ((mas.abstractAgent)this.myAgent).moveTo(node.getId()); //moveTo.replace(0, moveTo.length(), node.getId());
+						if(moved) {
+							break;
+						}
+					}
+				}
+				result = GOTO_STATE_WALK;
+				break;
 			case ACLMessage.REQUEST :
 				if(msg.getContent().contains("INTERBLOCAGE")) {
 					ACLMessage waitMeMsg = new ACLMessage(ACLMessage.CONFIRM);
@@ -58,6 +85,7 @@ public class CheckMailBoxBehaviour extends Behaviour{
 					((abstractAgent) myAgent).sendMessage(waitMeMsg);
 					
 					interblocageMessage = msg;
+					((BFSExploAgent) myAgent).setInterblocageMessage(msg);
 					result = GOTO_STATE_INTERBLOCAGE_RESOLUTION;
 				}
 				
@@ -81,6 +109,7 @@ public class CheckMailBoxBehaviour extends Behaviour{
 				System.out.println(myAgent.getLocalName()+"*******New Graph received !!");
 				graphReception(msg);
 				break;
+			
 			}
 			
 		}

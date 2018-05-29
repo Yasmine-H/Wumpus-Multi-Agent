@@ -9,6 +9,7 @@ import jade.lang.acl.ACLMessage;
 import mas.abstractAgent;
 import mas.graph.Graph;
 import mas.graph.Node;
+import mas.agents.BFSExploAgent;
 
 public class InterblocageResolutionBehaviour extends Behaviour{
 	
@@ -20,12 +21,16 @@ public class InterblocageResolutionBehaviour extends Behaviour{
 	private String senderDesiredPosition;
 	private String myPosition;
 	private int unexploredAtExtremities; 
+	private StringBuilder moveTo;
+	private String myExtremity = "";
+	private String hisExtremity = "";
 
-	public InterblocageResolutionBehaviour(final mas.abstractAgent myAgent, Graph graph, ACLMessage interblocageMessage) {
+	public InterblocageResolutionBehaviour(final mas.abstractAgent myAgent, Graph graph, ACLMessage interblocageMessage, StringBuilder moveTo) {
 		super(myAgent);
 		this.graph = graph;
 		this.sender = interblocageMessage.getSender();
 		this.myPosition = myAgent.getCurrentPosition();
+		this.moveTo = moveTo;
 		analyzeMessage(interblocageMessage);
 		
 		this.unexploredAtExtremities = 0;
@@ -33,7 +38,11 @@ public class InterblocageResolutionBehaviour extends Behaviour{
 	
 	@Override
 	public void action() {
-		System.out.println("INTERBLOCAGE RESOLUTION Bevahivour*************************");
+		this.interblocageMessage = ((BFSExploAgent)myAgent).getInterblocageMessage();
+		this.sender = interblocageMessage.getSender();
+		this.myPosition = ((abstractAgent) myAgent).getCurrentPosition();
+		analyzeMessage(interblocageMessage);
+		System.out.println(myAgent.getLocalName()+" : INTERBLOCAGE RESOLUTION Bevahivour*************************");
 		
 		//If I'm at the end of a blind lane (i.e., if my current node has only 1 neighbour), I can't give a priority!
 		if(graph.getNode(myPosition).getNeighbours().size() == 1) {
@@ -45,8 +54,11 @@ public class InterblocageResolutionBehaviour extends Behaviour{
 		}
 		
 		//If I'm not blocking him anymore - I've moved before reading his message:
-		if(!senderDesiredPosition.contains(myPosition)) { //TODO: 18.4.: I don't use equals because as senderDesiredPosition was retrieved from the message, I'm not sure if the string contains only 
+		//System.out.println("msg: "+interblocageMessage);
+		else if(!senderDesiredPosition.contains(myPosition)) { //TODO: 18.4.: I don't use equals because as senderDesiredPosition was retrieved from the message, I'm not sure if the string contains only 
 													      //what we want or also some spaces (or that kind of stuff) at its beginning/end.
+			System.out.println(" xxxxxxxxxxxxxxx"+myAgent.getLocalName()+"  My position : "+myPosition+" sdp : "+senderDesiredPosition);
+			
 			ACLMessage response =new ACLMessage(ACLMessage.AGREE);
 			response.setSender(myAgent.getAID());
 			response.addReceiver(sender);
@@ -54,12 +66,21 @@ public class InterblocageResolutionBehaviour extends Behaviour{
 																							  //with AGREE, we just let him know that we would move, once the way is free, we should confirm it
 																							  //to him in GivePriorityBehaviour with an inform message - or not? It's to discuss!  
 			((abstractAgent) myAgent).sendMessage(response);
+			System.out.println(";;;;;;;;;;;;;;;;;;; >>Agent : "+myAgent.getLocalName()+"  msg "+response+" sent to "+sender+";;;;;;;;;;;;;;;;;;;;;;");
+		}
+		//If I don't know his desired position - I can't be blocking him ! (this should not appear though ... )
+		else if(graph.getNode(senderDesiredPosition) == null) {
+			ACLMessage response =new ACLMessage(ACLMessage.AGREE);
+			response.setSender(myAgent.getAID());
+			response.addReceiver(sender);
+			response.setContent("INTERBLOCAGE: I'm not blocking you anymore, you can move!");
+			((abstractAgent) myAgent).sendMessage(response);
 		}
 		
 		//TODO 18.4.: If I want to move to another node than the sender? F.e., I am in the node he wants to move to, but I want to move nto another one - I can move here and make him a place!
 		
 		//else - we are really in interblocage
-		if(senderType.contains("EXPLO")) {
+		else if(senderType.contains("EXPLO")) {
 			twoExplorersResolution();
 		}
 		else if(senderType.contains("COLL")) { //TODO 18.4.: When the collector is created
@@ -73,20 +94,25 @@ public class InterblocageResolutionBehaviour extends Behaviour{
 	}
 	
 	private void analyzeMessage(ACLMessage msg) {
+		try {		
+		System.out.println("********************** IN ANALYSE MESSAGE **********************");	
 		String[] lines = msg.getContent().split("\n");
 		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i];
 			String[] lineParts = line.split(":");
 			
 			if(lineParts[0].contains("Type")){
-				this.senderType = lineParts[1];
+				this.senderType = lineParts[1].replaceAll("\\s", "");
 			}
 			else if(lineParts[0].contains("Blocked")) {
-				this.senderPosition = lineParts[1];
+				this.senderPosition = lineParts[1].replaceAll("\\s", "");
 			}
 			else if(lineParts[0].contains("move to")) {
-				this.senderDesiredPosition = lineParts[1];
+				this.senderDesiredPosition = lineParts[1].replaceAll("\\s", "");
 			}
+		}
+		} catch (Exception e) {
+			// TODO : NullPointerException when FSM is created
 		}
 	}
 	
@@ -109,6 +135,7 @@ public class InterblocageResolutionBehaviour extends Behaviour{
 	}
 	
 	private boolean himInCorridor() {
+		System.out.println("sender desired : "+senderDesiredPosition+" graph :"+graph.getAllNodes().toString());
 		if(graph.getNode(senderDesiredPosition).getNeighbours().size() == 2) {
 			return true;
 		}
@@ -122,10 +149,17 @@ public class InterblocageResolutionBehaviour extends Behaviour{
 		ArrayList<String> onThePath = new ArrayList<>();
 		//To fix our initial direction (the direction in which another agent wants to move), we will say that the senders's actual position has already been visited
 		onThePath.add(positionOfOtherAgent);
-		String actualPosition = myPosition;
 		
-		while(!crossroadReached) {
+		String actualPosition = myPosition; //if it's me for whom we are doing the calcul
+		
+		if(positionOfOtherAgent.equalsIgnoreCase(myPosition)) { //if it's other agent
+			actualPosition = senderPosition;
+		}
+		
+		
+		while(!crossroadReached && distance < graph.size()) { //if the corridor is a blind line, the boucle would be infinite, that's why graph.size()
 			onThePath.add(actualPosition);
+			System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"+actualPosition+"xxxxxxxxxxxxxxxxxxxxxxxxx");
 			ArrayList<Node> neighbours = graph.getNode(actualPosition).getNeighbours();
 			
 			boolean stillInCorridor = false;
@@ -142,9 +176,17 @@ public class InterblocageResolutionBehaviour extends Behaviour{
 			
 			//If there is no unvisited node of the degree 2, we have sorted from the corridor
 			crossroadReached = !stillInCorridor;
+			//TODO : Possiblement the infinite cycle !!!
 			
 		}
 		
+		//We remember the extremity position
+		if(positionOfOtherAgent.equalsIgnoreCase(myPosition)) {
+			hisExtremity = actualPosition;
+		}
+		else {
+			myExtremity = actualPosition;
+		}
 		//We check if there exists an unexplored node at the corridor's extremity:
 		for(Node neighbour : graph.getNode(actualPosition).getNeighbours()) {
 			//Once we find the unexplored node at the reached extremity :
@@ -171,14 +213,25 @@ public class InterblocageResolutionBehaviour extends Behaviour{
 			
 			if(unexploredAtExtremities == 2) {
 				//TODO 18.4.: Agents should share the information and go away in opposites directions to explore the graph at both extremities
+				ACLMessage response =new ACLMessage(ACLMessage.REFUSE);
+				response.setSender(myAgent.getAID());
+				response.addReceiver(sender);
+				response.setContent("INTERBLOCAGE: \n"
+						+ "you move to : "+hisExtremity);
+				((abstractAgent) myAgent).sendMessage(response);
+				
+				moveTo.replace(0, moveTo.length(), myExtremity);
+				
 			}
 			else { //There will be someone who has priority
 				if(myDistance > hisDistance) {
 					ACLMessage response =new ACLMessage(ACLMessage.REFUSE);
 					response.setSender(myAgent.getAID());
 					response.addReceiver(sender);
-					response.setContent("INTERBLOCAGE: You are nearer the crossroad - I have priority.");
+					response.setContent("INTERBLOCAGE: \n"
+							+ "you move to : "+hisExtremity);
 					((abstractAgent) myAgent).sendMessage(response);
+					System.out.println(";;;;;;;;;;;;;;;;;;; >>Agent : "+myAgent.getLocalName()+"  msg "+response+" sent to "+sender+";;;;;;;;;;;;;;;;;;;;;;");
 				}
 				if(myDistance <= hisDistance) { //TODO 18.4: If egality? We can be egoistic, gentle or employer the probability/ look if there is someone else approaching...
 					ACLMessage response =new ACLMessage(ACLMessage.AGREE);
@@ -186,6 +239,9 @@ public class InterblocageResolutionBehaviour extends Behaviour{
 					response.addReceiver(sender);
 					response.setContent("INTERBLOCAGE: I'm nearer the crossroad - you have priority, I will make you a way.");
 					((abstractAgent) myAgent).sendMessage(response);
+					System.out.println("sjasljsaoùdskdùoksdosa myExtremity: "+myExtremity);
+					moveTo.replace(0, moveTo.length(), myExtremity);
+					System.out.println(";;;;;;;;;;;;;;;;;;; >>Agent : "+myAgent.getLocalName()+"  msg "+response+" sent to "+sender+";;;;;;;;;;;;;;;;;;;;;;");
 				}
 			}
 		}
@@ -199,14 +255,57 @@ public class InterblocageResolutionBehaviour extends Behaviour{
 		}
 		//If it is only him who is in the corridor, I let him go away...
 		else if(himInCorridor()) {
+				ArrayList<Node>  neighbours = graph.getNode(myPosition).getNeighbours();
+				//neighbours.remove(senderDesiredPosition);
+				//int index = (int)(Math.random()*neighbours.size());
+				//moveTo.replace(0, moveTo.length(), neighbours.get(index).getId());
+				
+				/*
+				for(Node node :neighbours) {
+					if(!node.getId().equalsIgnoreCase(senderDesiredPosition)) {
+						moveTo.replace(0, moveTo.length(), node.getId());
+					}
+				}
+				*/
 				ACLMessage response =new ACLMessage(ACLMessage.AGREE);
 				response.setSender(myAgent.getAID());
 				response.addReceiver(sender);
 				response.setContent("INTERBLOCAGE: I'm nearer the crossroad - you have priority, I will make you a way.");
 				((abstractAgent) myAgent).sendMessage(response);
+				
+				for(Node node :neighbours) {
+					if(!node.getId().equalsIgnoreCase(senderDesiredPosition)) {
+						boolean moved = ((mas.abstractAgent)this.myAgent).moveTo(node.getId()); //moveTo.replace(0, moveTo.length(), node.getId());
+						if(moved) {
+							break;
+						}
+					}
+				}
 		}
 		else { //no one in the corridor
 			//TODO 18.4. !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			//Pour l'instant : on est gentil :
+			ArrayList<Node>  neighbours = graph.getNode(myPosition).getNeighbours();
+			
+			//neighbours.remove(senderDesiredPosition);
+			//int index = (int)(Math.random()*neighbours.size());
+			//moveTo.replace(0, moveTo.length(), neighbours.get(index).getId());
+						
+			ACLMessage response =new ACLMessage(ACLMessage.REFUSE);
+			response.setSender(myAgent.getAID());
+			response.addReceiver(sender);
+			response.setContent("I am nice - go on !");
+			((abstractAgent) myAgent).sendMessage(response);
+			
+			for(Node node :neighbours) {
+				if(!node.getId().equalsIgnoreCase(senderDesiredPosition)) {
+					boolean moved = ((mas.abstractAgent)this.myAgent).moveTo(node.getId()); //moveTo.replace(0, moveTo.length(), node.getId());
+					if(moved) {
+						break;
+					}
+				}
+			}
+			
 		}
 	}
 	
