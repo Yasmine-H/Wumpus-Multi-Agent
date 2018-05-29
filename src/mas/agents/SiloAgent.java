@@ -2,6 +2,7 @@ package mas.agents;
 
 import java.util.ArrayList;
 
+import env.EntityType;
 import env.Environment;
 import jade.core.AID;
 import jade.core.behaviours.FSMBehaviour;
@@ -11,11 +12,8 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import mas.abstractAgent;
-import mas.behaviours.BFSWalkBehaviour;
 import mas.behaviours.CheckMailBoxBehaviour;
-import mas.behaviours.CollectorWalkBehaviour;
 import mas.behaviours.GraphRequestBehaviour;
-import mas.behaviours.SayHello;
 import mas.behaviours.SendGraphBehaviour;
 import mas.behaviours.SiloWalkBehaviour;
 import mas.graph.Graph;
@@ -27,7 +25,7 @@ public class SiloAgent extends abstractAgent {
 	 */
 	private static final long serialVersionUID = 8889582860728748887L;
 
-	public static final String SERVICE_TANK = "tank";
+//	public static final String SERVICE_TANK = "Silo";
 	
 	private Graph graph;
 	private ArrayList<AID> receivers;
@@ -51,7 +49,7 @@ public class SiloAgent extends abstractAgent {
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
 		ServiceDescription sd = new ServiceDescription();
-		sd.setType(SERVICE_TANK);
+		sd.setType(Constants.SILO_NAME);
 		sd.setName(getLocalName());
 		dfd.addServices(sd);
 		try
@@ -68,7 +66,7 @@ public class SiloAgent extends abstractAgent {
 		final Object[] args = getArguments();
 		if(args[0]!=null){
 
-			deployAgent((Environment) args[0]);
+			deployAgent((Environment) args[0], (EntityType) args[1]);
 
 		}else{
 			System.err.println("Malfunction during parameter's loading of agent"+ this.getClass().getName());
@@ -93,7 +91,7 @@ public class SiloAgent extends abstractAgent {
 
 		fsm.registerFirstState(new SiloWalkBehaviour(this, graph), Constants.STATE_WALK);
 		fsm.registerState(new SendGraphBehaviour(this, graph, receivers, graph_subscribers), Constants.STATE_GRAPH_TRANSMISSION);
-		fsm.registerState(new GraphRequestBehaviour(this, SERVICE_TANK), Constants.STATE_SEND_GRAPH_REQUEST);
+		fsm.registerState(new GraphRequestBehaviour(this, EntityType.AGENT_TANKER.getName()), Constants.STATE_SEND_GRAPH_REQUEST);
 	
 
 		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)

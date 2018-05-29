@@ -24,7 +24,7 @@ import mas.graph.Graph;
 public class BFSExploAgent extends abstractAgent{
 
 	
-	public static final String SERVICE_EXP = "explorer";
+//	public static final String SERVICE_EXP = "explorer";
 	
 	/**
 	 * 
@@ -53,7 +53,7 @@ public class BFSExploAgent extends abstractAgent{
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
 		ServiceDescription sd = new ServiceDescription();
-		sd.setType(SERVICE_EXP);
+		sd.setType(Constants.EXPLORATOR_NAME);
 		sd.setName(getLocalName());
 		dfd.addServices(sd);
 		try

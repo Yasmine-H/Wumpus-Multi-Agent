@@ -25,14 +25,15 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 	private Graph graph;
 	private ArrayList<AID> receivers;
 	private ACLMessage msg;
+	private String type;
 	
 	
-	public SendInterblocageStartMessageBehaviour(final mas.abstractAgent myAgent, Graph graph, ArrayList<AID> recievers, ACLMessage interblocageMessage) {
+	public SendInterblocageStartMessageBehaviour(final mas.abstractAgent myAgent, Graph graph, ArrayList<AID> recievers, ACLMessage interblocageMessage, String type) {
 		super(myAgent);
 		this.graph = graph;
 	    this.receivers = recievers;
 	    this.msg = interblocageMessage;
-	    
+	    this.type = type;
 	}
 	
 	@Override
@@ -41,7 +42,7 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 		System.out.println("Send Interblocage Bevahivour*************************");
 		DFAgentDescription dfd = new DFAgentDescription();
 		ServiceDescription sd = new ServiceDescription();
-		sd.setType(BFSExploAgent.SERVICE_EXP);
+		sd.setType(type);
 		dfd.addServices(sd);
 		ACLMessage msg=new ACLMessage(ACLMessage.REQUEST);
 		msg.setSender(this.myAgent.getAID());

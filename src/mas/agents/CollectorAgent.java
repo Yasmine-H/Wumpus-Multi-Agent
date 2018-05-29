@@ -2,6 +2,7 @@ package mas.agents;
 
 import java.util.ArrayList;
 
+import env.EntityType;
 import env.Environment;
 import jade.core.AID;
 import jade.core.behaviours.FSMBehaviour;
@@ -20,7 +21,7 @@ import mas.graph.Graph;
 
 public class CollectorAgent extends abstractAgent {
 
-	public static final String SERVICE_PICK = "picker";
+//	public static final String SERVICE_PICK = "picker";
 	
 	/**
 	 * 
@@ -42,7 +43,7 @@ public class CollectorAgent extends abstractAgent {
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
 		ServiceDescription sd = new ServiceDescription();
-		sd.setType(SERVICE_PICK);
+		sd.setType(Constants.COLLECTOR_NAME);
 		sd.setName(getLocalName());
 		dfd.addServices(sd);
 		try
@@ -59,7 +60,7 @@ public class CollectorAgent extends abstractAgent {
 		final Object[] args = getArguments();
 		if(args[0]!=null){
 
-			deployAgent((Environment) args[0]);
+			deployAgent((Environment) args[0], (EntityType) args[1]);
 
 		}else{
 			System.err.println("Malfunction during parameter's loading of agent"+ this.getClass().getName());
@@ -85,7 +86,7 @@ public class CollectorAgent extends abstractAgent {
 
 		fsm.registerFirstState(new CollectorWalkBehaviour(this, graph), Constants.STATE_WALK);
 		fsm.registerState(new SendGraphBehaviour(this, graph, receivers, graph_subscribers), Constants.STATE_GRAPH_TRANSMISSION);
-		fsm.registerState(new GraphRequestBehaviour(this, SERVICE_PICK), Constants.STATE_SEND_GRAPH_REQUEST);
+		fsm.registerState(new GraphRequestBehaviour(this, EntityType.AGENT_COLLECTOR.getName()), Constants.STATE_SEND_GRAPH_REQUEST);
 		
 		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)
 		//fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, interblocageMessage), STATE_START_INTERBLOCAGE);

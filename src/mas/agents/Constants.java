@@ -30,6 +30,8 @@ public class Constants {
 	public static final int GOTO_STATE_INTERBLOCAGE_RESOLUTION = 2;
 	public  static String MESSAGE_GRAPH_RECEIVED = "Message Received";
 	
-	
+	public static final String COLLECTOR_NAME = "collector";
+	public static final String EXPLORATOR_NAME = "explorator";
+	public static final String SILO_NAME = "silo";
 
 }
