@@ -66,16 +66,17 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 				}
 				
 			if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_COLLECTOR.getName())) {
-				System.out.println("In IF .................................................................. ");
+				//System.out.println("In IF .................................................................. ");
 				msg.setContent("INTERBLOCAGE DETECTED: \nAgent: "+myAgent.getLocalName()+"\nType: COLL \nBlocked at: "
-						+((abstractAgent) myAgent).getCurrentPosition()+"\nWant move to: "+((CollectorAgent) myAgent).getMoveTo());
+						+((abstractAgent) myAgent).getCurrentPosition()+"\nWant move to: "+((CollectorAgent) myAgent).getMoveTo()+""
+								+ "\nMy restant capacity : "+((CollectorAgent)myAgent).getBackPackFreeSpace());
 			}
 			else if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_EXPLORER.getName())) {
 				msg.setContent("INTERBLOCAGE DETECTED: \nAgent: "+myAgent.getLocalName()+"\nType: EXPLO \nBlocked at: "
 						+((abstractAgent) myAgent).getCurrentPosition()+"\nWant move to: "+((BFSExploAgent) myAgent).getMoveTo());
 			}
 			else if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_TANKER.getName())) {
-				System.out.println("Je suis silo:::::::::::::::::::::::");
+				//System.out.println("Je suis silo:::::::::::::::::::::::");
 				msg.setContent("INTERBLOCAGE DETECTED: \nAgent: "+myAgent.getLocalName()+"\nType: SILO \nBlocked at: "
 						+((abstractAgent) myAgent).getCurrentPosition()+"\nWant move to: "+((SiloAgent) myAgent).getMoveTo());
 			}

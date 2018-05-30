@@ -12,6 +12,7 @@ import mas.abstractAgent;
 import mas.agents.Constants;
 import mas.graph.Graph;
 import mas.graph.Node;
+import mas.agents.BFSExploAgent;;
 
 /**************************************
  * 
@@ -72,11 +73,11 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 
 			}
 			else { //we know where we want to move
-				System.out.println(" ................ MOVE TO : "+moveTo);
-				System.out.println(graph.getNode(id));
+				//System.out.println(" ................ MOVE TO : "+moveTo);
+				//System.out.println(graph.getNode(id));
 
 				ArrayList<Node> pathToMoveTo = graph.getPathToGivenNode(graph.getNode(id), moveTo.toString());
-				System.out.println(pathToMoveTo);
+				//System.out.println(pathToMoveTo);
 				try {
 					if(pathToMoveTo.get(0).getId().equalsIgnoreCase(id)) {
 						pathToMoveTo.remove(graph.getNode(id));
@@ -119,7 +120,7 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 					listNeighbours.add(graph.getNode(lobs.get(i).getLeft())); //TODO 26.2: cf [1]
 				}
 
-				System.out.println("Before creating the node, the neighbours are : "+listNeighboursId.toString());
+				//System.out.println("Before creating the node, the neighbours are : "+listNeighboursId.toString());
 				//add node to the graph or update it if it already exists
 
 				if(!graph.isInGraph(id)){ //check if the node already exists in the graph 
@@ -146,7 +147,7 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 
 				//System.out.println("Before calling nexttovisit, the neighbours are : "+graph.getNode(id).getNeighbours().toString()+" and listNeighbours : "+listNeighboursId.toString());
 				//String idToVisit = graph.getClosestUnvisited(id, new ArrayList<Couple<String,String>>()); 
-				System.out.println("MOVE TO AU DEBUT : "+moveTo);
+				//System.out.println("MOVE TO AU DEBUT : "+moveTo);
 				if(moveTo.toString().equals("")) {
 					ArrayList<Node> pathToTheClosest = graph.getPathToClosestUnvisited(graph.getNode(id));
 					if(pathToTheClosest == null){
@@ -170,11 +171,11 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 					}
 				}
 				else { //we know where we want to move
-					System.out.println(" ................ MOVE TO : "+moveTo);
-					System.out.println(graph.getNode(id));
+					//System.out.println(" ................ MOVE TO : "+moveTo);
+					//System.out.println(graph.getNode(id));
 
 					ArrayList<Node> pathToMoveTo = graph.getPathToGivenNode(graph.getNode(id), moveTo.toString());
-					System.out.println(pathToMoveTo);
+					//System.out.println(pathToMoveTo);
 					try {
 						if(pathToMoveTo.get(0).getId().equalsIgnoreCase(id)) {
 							pathToMoveTo.remove(graph.getNode(id));
@@ -212,6 +213,9 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 		if(moved) {
 			if(moveTo.toString().equalsIgnoreCase(((abstractAgent) myAgent).getCurrentPosition())) {
 				moveTo.replace(0, moveTo.length(), "");
+				if(((BFSExploAgent)myAgent).getInterblocageInCours()) {
+					((BFSExploAgent)myAgent).setInterblocageInCours(false);
+				}
 			}
 			//
 			return Constants.MOVED;
@@ -230,13 +234,24 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 			}
 		}
 		if (adepts.size() > 0) {
-			int index = (int)Math.random()*adepts.size();
+			int index = (int)(Math.random()*adepts.size());
 			return adepts.get(index).getId();	
 		}
 		else {
-			int index = (int)Math.random()*neighbourhood.size();
+			int index = (int)(Math.random()*neighbourhood.size());
 			return neighbourhood.get(index).getId();
 		}
+	}
+	
+	public String getRandomNode() {
+		ArrayList<Node> adepts = new ArrayList();
+		for(Node node : graph.getAllNodes()) {
+			if(node.getNeighbours().size() > 2) {
+				adepts.add(node);
+			}
+		}
+		int index = (int)(Math.random()*adepts.size());
+		return adepts.get(index).getId();	
 	}
 }
 

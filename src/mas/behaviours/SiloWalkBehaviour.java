@@ -114,7 +114,7 @@ public class SiloWalkBehaviour extends SimpleBehaviour {
 			listNeighbours.add(graph.getNode(lobs.get(i).getLeft())); //TODO 26.2: cf [1]
 		}
 
-		System.out.println("Before creating the node, the neighbours are : "+listNeighboursId.toString());
+		//System.out.println("Before creating the node, the neighbours are : "+listNeighboursId.toString());
 		
 		//add node to the graph or update it if it already exists
 		if(!graph.isInGraph(id)){ //check if the node already exists in the graph 
@@ -158,7 +158,7 @@ public class SiloWalkBehaviour extends SimpleBehaviour {
 			}
 		}*/
 		
-		System.out.println("MOVE TO AU DEBUT : "+moveTo);
+		//System.out.println("MOVE TO AU DEBUT : "+moveTo);
 		if(moveTo.toString().equals("")) {
 			ArrayList<Node> pathToTheClosest = graph.getPathToClosestUnvisited(graph.getNode(id));
 			if(pathToTheClosest == null){
@@ -182,11 +182,11 @@ public class SiloWalkBehaviour extends SimpleBehaviour {
 			}
 		}
 		else { //we know where we want to move
-			System.out.println(" ................ MOVE TO : "+moveTo);
-			System.out.println(graph.getNode(id));
+			//System.out.println(" ................ MOVE TO : "+moveTo);
+			//System.out.println(graph.getNode(id));
 
 			ArrayList<Node> pathToMoveTo = graph.getPathToGivenNode(graph.getNode(id), moveTo.toString());
-			System.out.println(pathToMoveTo);
+			//System.out.println(pathToMoveTo);
 			try {
 				if(pathToMoveTo.get(0).getId().equalsIgnoreCase(id)) {
 					pathToMoveTo.remove(graph.getNode(id));
@@ -227,7 +227,7 @@ public class SiloWalkBehaviour extends SimpleBehaviour {
 	
 	public int onEnd(){
 		// TODO 28.2 : FSMBehaviour start moving to inform the other agents
-		System.out.println("Silo walk on end ...........................; :"+moved);
+		//System.out.println("Silo walk on end ...........................; :"+moved);
 		if(moved) {
 			
 			if(moveTo.toString().equalsIgnoreCase(((abstractAgent) myAgent).getCurrentPosition())) {

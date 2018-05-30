@@ -60,22 +60,31 @@ public class CheckMailBoxBehaviour extends Behaviour{
 			System.out.println(myAgent.getLocalName()+"*******New message from *******"+msg.getSender().toString()+" content :"+msg.getContent());
 			switch(msg.getPerformative()){
 			case ACLMessage.AGREE : //INTERBLOCAGE RESOLUTION - we have a priority
-				System.out.println(myAgent.getLocalName()+" has priority! It will move.");
+				//System.out.println(myAgent.getLocalName()+" has priority! It will move.");
 				result = Constants.GOTO_STATE_WALK;
 				break;
 			case ACLMessage.REFUSE : //
-				System.out.println(myAgent.getLocalName()+" has to give priority! It will go to the state GivePriorityBehaviour.");
+				//System.out.println(myAgent.getLocalName()+" has to give priority! It will go to the state GivePriorityBehaviour.");
 				if(msg.getContent().contains("move to :")) {
 					String[] lineParts = msg.getContent().split(":");
 					moveTo.replace(0, moveTo.length(), lineParts[lineParts.length - 1].trim());	
+					//if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_COLLECTOR.getName())) {
+					//	((CollectorAgent) myAgent).setInterblocageMessage(msg);
+					//}
+					//else if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_EXPLORER.getName())) {
+					//	((BFSExploAgent) myAgent).setInterblocageInCours(true);
+					//}
+					//else if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_TANKER.getName())) {
+					//	((SiloAgent) myAgent).setInterblocageMessage(msg);
+					//}
 				}
 				else {
 					ArrayList<Node> neighbours = graph.getAllNodes();
 					for(Node node :neighbours) {
-						System.out.println("node to try to move : "+node.getId());
+						//System.out.println("node to try to move : "+node.getId());
 						boolean moved = ((mas.abstractAgent)this.myAgent).moveTo(node.getId()); //moveTo.replace(0, moveTo.length(), node.getId());
 						if(moved) {
-							System.out.println("move successfull");
+							//System.out.println("move successfull");
 							break;
 						}
 					}
@@ -140,12 +149,12 @@ public class CheckMailBoxBehaviour extends Behaviour{
 	private void graphReception(ACLMessage msg) {
 		try {
 			//Graph fusion
-			System.out.println(myAgent.getLocalName()+"******************MON GRAPHE AVANT FUSION");
+			//System.out.println(myAgent.getLocalName()+"******************MON GRAPHE AVANT FUSION");
 			graph.printNodes();
-			System.out.println(myAgent.getLocalName()+"******************GRAPHE RECU");
+			//System.out.println(myAgent.getLocalName()+"******************GRAPHE RECU");
 			((Graph)msg.getContentObject()).printNodes();
 			graph.fusion(((Graph)msg.getContentObject()));
-			System.out.println(myAgent.getLocalName()+"******************NOUVEAU GRAPHE APRES FUSION");
+			//System.out.println(myAgent.getLocalName()+"******************NOUVEAU GRAPHE APRES FUSION");
 			graph.printNodes();
 			
 			//reply with an acknowledgement to the sender
@@ -156,12 +165,36 @@ public class CheckMailBoxBehaviour extends Behaviour{
 			ackn.setContent(Constants.MESSAGE_GRAPH_RECEIVED);
 			((mas.abstractAgent)this.myAgent).sendMessage(ackn);
 			//System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");
-			
+			moveTo.replace(0, moveTo.length(), randomUnexplored());
 			
 		} catch (UnreadableException e) {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public String randomUnexplored() {
+		ArrayList<Node> adepts = new ArrayList<>();
+		ArrayList<Node> adepts2 = new ArrayList<>();
+		
+		for(Node node : graph.getAllNodes()) {
+			if (!node.getVisited()) {
+				adepts.add(node);
+			}
+			if(node.getNeighbours().size() > 2) {
+				adepts2.add(node);
+			}
+		}
+		
+		if(adepts.size() > 0) {
+			int index = (int)(Math.random()*adepts.size());
+			return adepts.get(index).getId();
+		}
+		
+		else {
+			int index = (int)(Math.random()*adepts2.size());
+			return adepts2.get(index).getId();
+		}
 	}
 
 	@Override
@@ -181,7 +214,7 @@ public class CheckMailBoxBehaviour extends Behaviour{
 		 * 									    - resend the message 
 		 */
 		else if(timer == TIME_OUT && previousState.toString().equalsIgnoreCase(Constants.STATE_START_INTERBLOCAGE)) {
-				System.out.println(myAgent.getLocalName()+" We don't have the response to the INTERBLOCAGE request, we go to the Listener to wait some more time...");
+				//System.out.println(myAgent.getLocalName()+" We don't have the response to the INTERBLOCAGE request, we go to the Listener to wait some more time...");
 				done = true;
 				result = Constants.GOTO_STATE_INTERBLOCAGE_LISTENER;
 		}

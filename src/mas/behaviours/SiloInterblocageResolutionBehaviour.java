@@ -102,7 +102,7 @@ public class SiloInterblocageResolutionBehaviour extends Behaviour{
 	
 	private void analyzeMessage(ACLMessage msg) {
 		try {		
-		System.out.println("********************** IN ANALYSE MESSAGE **********************");	
+		//System.out.println("********************** IN ANALYSE MESSAGE **********************");	
 		String[] lines = msg.getContent().split("\n");
 		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i];
@@ -142,7 +142,7 @@ public class SiloInterblocageResolutionBehaviour extends Behaviour{
 	}
 	
 	private boolean himInCorridor() {
-		System.out.println("sender desired : "+senderDesiredPosition+" graph :"+graph.getAllNodes().toString());
+		//System.out.println("sender desired : "+senderDesiredPosition+" graph :"+graph.getAllNodes().toString());
 		if(graph.getNode(senderDesiredPosition).getNeighbours().size() == 2) {
 			return true;
 		}
@@ -166,7 +166,7 @@ public class SiloInterblocageResolutionBehaviour extends Behaviour{
 		
 		while(!crossroadReached && distance < graph.size()) { //if the corridor is a blind line, the boucle would be infinite, that's why graph.size()
 			onThePath.add(actualPosition);
-			System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"+actualPosition+"xxxxxxxxxxxxxxxxxxxxxxxxx");
+			//System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"+actualPosition+"xxxxxxxxxxxxxxxxxxxxxxxxx");
 			ArrayList<Node> neighbours = graph.getNode(actualPosition).getNeighbours();
 			
 			boolean stillInCorridor = false;
@@ -240,7 +240,7 @@ public class SiloInterblocageResolutionBehaviour extends Behaviour{
 									response.setContent("INTERBLOCAGE: \n"
 											+ "you move to : "+neighbourOfExtremity(hisExtremity));
 									((abstractAgent) myAgent).sendMessage(response);
-									System.out.println(";;;;;;;;;;;;;;;;;;; >>Agent : "+myAgent.getLocalName()+"  msg "+response+" sent to "+sender+";;;;;;;;;;;;;;;;;;;;;;");
+									//System.out.println(";;;;;;;;;;;;;;;;;;; >>Agent : "+myAgent.getLocalName()+"  msg "+response+" sent to "+sender+";;;;;;;;;;;;;;;;;;;;;;");
 								}
 								if(myDistance <= hisDistance) { //TODO 18.4: If egality? We can be egoistic, gentle or employer the probability/ look if there is someone else approaching...
 									ACLMessage response =new ACLMessage(ACLMessage.AGREE);
@@ -248,10 +248,10 @@ public class SiloInterblocageResolutionBehaviour extends Behaviour{
 									response.addReceiver(sender);
 									response.setContent("INTERBLOCAGE: I'm nearer the crossroad - you have priority, I will make you a way.");
 									((abstractAgent) myAgent).sendMessage(response);
-									System.out.println("sjasljsaoùdskdùoksdosa myExtremity: "+myExtremity);
+									//System.out.println("sjasljsaoùdskdùoksdosa myExtremity: "+myExtremity);
 									
 									moveTo.replace(0, moveTo.length(), neighbourOfExtremity(myExtremity));
-									System.out.println(";;;;;;;;;;;;;;;;;;; >>Agent : "+myAgent.getLocalName()+"  msg "+response+" sent to "+sender+";;;;;;;;;;;;;;;;;;;;;;");
+									//System.out.println(";;;;;;;;;;;;;;;;;;; >>Agent : "+myAgent.getLocalName()+"  msg "+response+" sent to "+sender+";;;;;;;;;;;;;;;;;;;;;;");
 								}
 							}
 						}
