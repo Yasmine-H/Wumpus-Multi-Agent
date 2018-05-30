@@ -116,45 +116,6 @@ public class CollectorAgent extends abstractAgent {
 		fsm.registerTransition(Constants.STATE_CHECK_MAILBOX, Constants.STATE_WALK, Constants.GOTO_STATE_WALK);
 
 
-
-//
-////		fsm.registerFirstState(new CollectorWalkBehaviour(this, graph), Constants.STATE_WALK);
-////		fsm.registerFirstState(new CollectorWalkBehaviour(this, graph, moveTo, previousState), Constants.STATE_WALK); TODO 29.05
-//		fsm.registerState(new SendGraphBehaviour(this, graph), Constants.STATE_GRAPH_TRANSMISSION);
-////		fsm.registerState(new GraphRequestBehaviour(this, EntityType.AGENT_COLLECTOR.getName()), Constants.STATE_SEND_GRAPH_REQUEST);
-//		
-//		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)
-//		//fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, interblocageMessage), STATE_START_INTERBLOCAGE);
-//
-//		//fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, interblocageMessage), STATE_INTERBLOCAGE_LISTENER);
-//		//TODO 11.4.2018 : LAST ATTENTION
-////		fsm.registerState(new CheckMailBoxBehaviour(this, graph, Constants.STATE_WALK, graph_subscribers), Constants.STATE_CHECK_MAILBOX); TODO 29.05
-//		fsm.registerState(new CheckMailBoxBehaviour(this, graph, new StringBuilder(Constants.STATE_WALK), previousState, /*graph_subscribers,*/ interblocageMessage, moveTo), Constants.STATE_CHECK_MAILBOX);
-//		
-//		/*
-//		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.MOVED);
-//		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.BLOCKED); // /!\TODO
-//		fsm.registerDefaultTransition(STATE_SEND_GRAPH_REQUEST, STATE_CHECK_MAILBOX);
-//		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_TRANSMISSION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_TRANSMISSION);
-//		fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
-//		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_WALK, CheckMailBoxBehaviour.GOTO_STATE_WALK);
-//		*/
-//		
-//		fsm.registerTransition(Constants.STATE_WALK, Constants.STATE_GRAPH_TRANSMISSION, Constants.MOVED);
-//		fsm.registerTransition(Constants.STATE_WALK, Constants.STATE_GRAPH_TRANSMISSION, Constants.BLOCKED); // /!\TODO
-//		fsm.registerDefaultTransition(Constants.STATE_GRAPH_TRANSMISSION, Constants.STATE_CHECK_MAILBOX);
-//		//fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_TRANSMISSION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_TRANSMISSION);
-//		//fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
-//		fsm.registerTransition(Constants.STATE_CHECK_MAILBOX, Constants.STATE_WALK, Constants.GOTO_STATE_WALK);
-//		
-//		addBehaviour(fsm);
-//
-		
-		
-		//Add the behaviours
-		//addBehaviour(new RandomWalkBehaviour(this));
-		//addBehaviour(new SayHello(this));
-
 		System.out.println("the agent "+this.getLocalName()+ " is started");
 
 	}

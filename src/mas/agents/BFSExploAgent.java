@@ -297,13 +297,11 @@ public class BFSExploAgent extends abstractAgent{
 			System.exit(-1);
 		}
 		
+		graph = new Graph();
+		interblocageMessage = new ACLMessage(ACLMessage.REQUEST);
 		moveTo = new StringBuilder("");
 		previousState = new StringBuilder("");
-
-		///
-		graph = new Graph();
 		receivers = new ArrayList<>();
-		interblocageMessage = new ACLMessage(ACLMessage.REQUEST);
 		
 //		DFAgentDescription[] result;
 //		try {
@@ -343,14 +341,7 @@ public class BFSExploAgent extends abstractAgent{
 		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, moveTo), Constants.STATE_INTERBLOCAGE_LISTENER);
 		fsm.registerState(new InterblocageResolutionBehaviour(this, graph, interblocageMessage, moveTo), Constants.STATE_INTERBLOCAGE_RESOLUTION);
 
-		//fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.MOVED);
 		
-		//fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.BLOCKED); // /!\TODO
-//		fsm.registerDefaultTransition(STATE_SEND_GRAPH_REQUEST, STATE_CHECK_MAILBOX);
-//		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_TRANSMISSION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_TRANSMISSION);
-//		fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
-//		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_WALK, CheckMailBoxBehaviour.GOTO_STATE_WALK);
-//		
 		//Se déplacer 
 		fsm.registerTransition(Constants.STATE_WALK, Constants.STATE_GRAPH_TRANSMISSION, Constants.MOVED);
 		fsm.registerTransition(Constants.STATE_WALK, Constants.STATE_START_INTERBLOCAGE, Constants.BLOCKED);
@@ -375,48 +366,6 @@ public class BFSExploAgent extends abstractAgent{
 
 		
 		
-		///////////
-		
-//		<<<<<
-//		fsm.registerFirstState(new BFSWalkBehaviour(this, graph, interblocageMessage), Constants.STATE_WALK);
-//		fsm.registerState(new SendGraphBehaviour(this, graph, receivers, graph_subscribers), Constants.STATE_GRAPH_TRANSMISSION);
-//		<<<<<
-		
-		//fsm.registerState(new GraphRequestBehaviour(this, SERVICE_EXP), STATE_SEND_GRAPH_REQUEST);
-		
-		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)
-		//fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, interblocageMessage), STATE_START_INTERBLOCAGE);
-
-		//fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, interblocageMessage), STATE_INTERBLOCAGE_LISTENER);
-		//TODO 11.4.2018 : LAST ATTENTION
-//		<<<<<
-//		fsm.registerState(new CheckMailBoxBehaviour(this, graph, Constants.STATE_WALK, graph_subscribers), Constants.STATE_CHECK_MAILBOX);
-//		<<<<<
-		
-		/*
-		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.MOVED);
-		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.BLOCKED); // /!\TODO
-		fsm.registerDefaultTransition(STATE_SEND_GRAPH_REQUEST, STATE_CHECK_MAILBOX);
-		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_TRANSMISSION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_TRANSMISSION);
-		fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
-		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_WALK, CheckMailBoxBehaviour.GOTO_STATE_WALK);
-		*/
-		
-		fsm.registerTransition(Constants.STATE_WALK, Constants.STATE_GRAPH_TRANSMISSION, Constants.MOVED);
-//		fsm.registerTransition(Constants.STATE_WALK, Constants.STATE_GRAPH_TRANSMISSION, Constants.BLOCKED); // /!\TODO
-		fsm.registerDefaultTransition(Constants.STATE_GRAPH_TRANSMISSION, Constants.STATE_CHECK_MAILBOX);
-		//fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_TRANSMISSION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_TRANSMISSION);
-		//fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
-		fsm.registerTransition(Constants.STATE_CHECK_MAILBOX, Constants.STATE_WALK, Constants.GOTO_STATE_WALK);
-		
-//		addBehaviour(fsm);
-
-		
-		
-		//addBehaviour(new BFSWalkBehaviour(this, graph));
-		/*addBehaviour(new SendGraphBehaviour(this, graph));
-		addBehaviour(new ReceiveGraphBehaviour(this, graph));
-		*/
 		System.out.println("the agent "+this.getLocalName()+ " is started");
 
 	}
