@@ -256,6 +256,7 @@ public class BFSExploAgent extends abstractAgent{
 	private ACLMessage interblocageMessage;
 	private StringBuilder moveTo;
 	private StringBuilder previousState;
+	private boolean interblocageInCours;
 	//private String moveTo;
 	/**
 	 * This method is automatically called when "agent".start() is executed.
@@ -302,6 +303,7 @@ public class BFSExploAgent extends abstractAgent{
 		moveTo = new StringBuilder("");
 		previousState = new StringBuilder("");
 		receivers = new ArrayList<>();
+		interblocageInCours = false;
 		
 //		DFAgentDescription[] result;
 //		try {
@@ -396,6 +398,13 @@ public class BFSExploAgent extends abstractAgent{
 		interblocageMessage = msg;
 	}
 	
+	public boolean getInterblocageInCours() {
+		return interblocageInCours;
+	}
+	
+	public void setInterblocageInCours(boolean bol) {
+		interblocageInCours = bol;
+	}
 }
 
 //>>>>>>> master
