@@ -3,6 +3,7 @@ package mas.behaviours;
 
 import java.util.ArrayList;
 
+import env.EntityType;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.domain.DFService;
@@ -12,6 +13,8 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import mas.abstractAgent;
 import mas.agents.BFSExploAgent;
+import mas.agents.CollectorAgent;
+import mas.agents.SiloAgent;
 import mas.agents.Constants;
 import mas.graph.Graph;
 
@@ -48,7 +51,7 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 		try {
 			DFAgentDescription[] result;
 			result = DFService.search(myAgent, dfd);
-			
+				System.out.println("DFD length : "+result.length);
 				for(int i=0; i<result.length; i++)
 				{
 					//System.out.println("My AID is "+myAgent.getAID() +" and I want to send to "+result[i].getName());
@@ -56,22 +59,35 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 					if(!result[i].getName().equals(myAgent.getAID()))
 					{
 						//System.out.println("IN IF ...................");
-						//System.out.println("new receiver : "+result[i]+" myAgent.getAId() : "+myAgent.getAID());
+						System.out.println("new receiver : "+result[i]+" myAgent.getAId() : "+myAgent.getAID());
 						msg.addReceiver(result[i].getName());
 						
 					}
 				}
-
+			System.out.println(EntityType.AGENT_COLLECTOR.getName());
+			System.out.println(((EntityType)myAgent.getArguments()[1]).getName());
+			if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_COLLECTOR.getName())) {
+				System.out.println("In IF .................................................................. ");
+				msg.setContent("INTERBLOCAGE DETECTED: \nAgent: "+myAgent.getLocalName()+"\nType: COLL \nBlocked at: "
+						+((abstractAgent) myAgent).getCurrentPosition()+"\nWant move to: "+((CollectorAgent) myAgent).getMoveTo());
+			}
+			else if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_EXPLORER.getName())) {
+				msg.setContent("INTERBLOCAGE DETECTED: \nAgent: "+myAgent.getLocalName()+"\nType: EXPLO \nBlocked at: "
+						+((abstractAgent) myAgent).getCurrentPosition()+"\nWant move to: "+((BFSExploAgent) myAgent).getMoveTo());
+			}
+			else if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_TANKER.getName())) {
+				msg.setContent("INTERBLOCAGE DETECTED: \nAgent: "+myAgent.getLocalName()+"\nType: SILO \nBlocked at: "
+						+((abstractAgent) myAgent).getCurrentPosition()+"\nWant move to: "+((SiloAgent) myAgent).getMoveTo());
+			}
 			
-			msg.setContent("INTERBLOCAGE DETECTED: \nAgent: "+myAgent.getLocalName()+"\nType: EXPLO \nBlocked at: "
-							+((abstractAgent) myAgent).getCurrentPosition()+"\nWant move to: "+((BFSExploAgent) myAgent).getMoveTo());
 				
 			
 			//we want the response in 3 seconds
 			//TODO 10.4: Define "3 seconds" as a constant (should be the same for each message)
 			//msg.setReplyByDate(new Date(System.currentTimeMillis() + 3000));
-			//System.out.println(">>Agent : "+this.myAgent.getLocalName()+"  msg "+msg+" to be sent");
+			System.out.println(">>Agent : "+this.myAgent.getLocalName()+"  msg "+msg+" to be sent");
 			//((mas.abstractAgent)this.myAgent).sendMessage(msg);
+		
 			((mas.abstractAgent)this.myAgent).sendMessage(msg);
 			//System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");
 			
