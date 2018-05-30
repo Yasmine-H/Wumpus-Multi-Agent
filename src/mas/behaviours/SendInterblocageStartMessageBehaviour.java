@@ -42,7 +42,7 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 		System.out.println("Send Interblocage Bevahivour*************************");
 		DFAgentDescription dfd = new DFAgentDescription();
 		ServiceDescription sd = new ServiceDescription();
-		sd.setType(Constants.SERVICE_EXP);
+		//sd.setType(Constants.SERVICE_EXP);
 		dfd.addServices(sd);
 		ACLMessage msg=new ACLMessage(ACLMessage.REQUEST);
 		msg.setSender(this.myAgent.getAID());
