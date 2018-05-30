@@ -227,7 +227,9 @@ public class SiloWalkBehaviour extends SimpleBehaviour {
 	
 	public int onEnd(){
 		// TODO 28.2 : FSMBehaviour start moving to inform the other agents
+		System.out.println("Silo walk on end ...........................; :"+moved);
 		if(moved) {
+			
 			if(moveTo.toString().equalsIgnoreCase(((abstractAgent) myAgent).getCurrentPosition())) {
 				moveTo.replace(0, moveTo.length(), "");
 			}

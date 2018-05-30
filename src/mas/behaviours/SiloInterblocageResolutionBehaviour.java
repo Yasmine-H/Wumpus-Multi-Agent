@@ -11,6 +11,7 @@ import mas.graph.Graph;
 import mas.graph.Node;
 import mas.agents.BFSExploAgent;
 import mas.agents.CollectorAgent;
+import mas.agents.SiloAgent;
 
 public class SiloInterblocageResolutionBehaviour extends Behaviour{
 	
@@ -39,7 +40,7 @@ public class SiloInterblocageResolutionBehaviour extends Behaviour{
 	
 	@Override
 	public void action() {
-		this.interblocageMessage = ((CollectorAgent)myAgent).getInterblocageMessage();
+		this.interblocageMessage = ((SiloAgent)myAgent).getInterblocageMessage();
 		this.sender = interblocageMessage.getSender();
 		this.myPosition = ((abstractAgent) myAgent).getCurrentPosition();
 		System.out.println("INTERBLOCAGE msg : "+interblocageMessage.getContent());
@@ -72,11 +73,11 @@ public class SiloInterblocageResolutionBehaviour extends Behaviour{
 		}
 		//If I don't know his desired position - I can't be blocking him ! (this should not appear though ... )
 		else if(graph.getNode(senderDesiredPosition) == null) {
-			ACLMessage response =new ACLMessage(ACLMessage.AGREE);
-			response.setSender(myAgent.getAID());
-			response.addReceiver(sender);
-			response.setContent("INTERBLOCAGE: I'm not blocking you anymore, you can move!");
-			((abstractAgent) myAgent).sendMessage(response);
+			//ACLMessage response =new ACLMessage(ACLMessage.AGREE);
+			//response.setSender(myAgent.getAID());
+			//response.addReceiver(sender);
+			//response.setContent("INTERBLOCAGE: I'm not blocking you anymore, you can move!");
+			//((abstractAgent) myAgent).sendMessage(response);
 		}
 		
 		//TODO 18.4.: If I want to move to another node than the sender? F.e., I am in the node he wants to move to, but I want to move nto another one - I can move here and make him a place!

@@ -75,6 +75,7 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 						+((abstractAgent) myAgent).getCurrentPosition()+"\nWant move to: "+((BFSExploAgent) myAgent).getMoveTo());
 			}
 			else if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_TANKER.getName())) {
+				System.out.println("Je suis silo:::::::::::::::::::::::");
 				msg.setContent("INTERBLOCAGE DETECTED: \nAgent: "+myAgent.getLocalName()+"\nType: SILO \nBlocked at: "
 						+((abstractAgent) myAgent).getCurrentPosition()+"\nWant move to: "+((SiloAgent) myAgent).getMoveTo());
 			}
