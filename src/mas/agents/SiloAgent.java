@@ -13,8 +13,12 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import mas.abstractAgent;
 import mas.behaviours.CheckMailBoxBehaviour;
+import mas.behaviours.ExploInterblocageResolutionBehaviour;
 import mas.behaviours.GraphRequestBehaviour;
+import mas.behaviours.InterblocageListenerBehaviour;
 import mas.behaviours.SendGraphBehaviour;
+import mas.behaviours.SendInterblocageStartMessageBehaviour;
+import mas.behaviours.SiloInterblocageResolutionBehaviour;
 import mas.behaviours.SiloWalkBehaviour;
 import mas.graph.Graph;
 
@@ -32,6 +36,7 @@ public class SiloAgent extends abstractAgent {
 	private StringBuilder moveTo;
 	private StringBuilder previousState;
 	
+	private ArrayList<AID> receivers;
 
 	/**
 	 * This method is automatically called when "agent".start() is executed.
@@ -86,11 +91,16 @@ public class SiloAgent extends abstractAgent {
 
 		moveTo = new StringBuilder("");
 		previousState = new StringBuilder("");
+		receivers = new ArrayList<>();
 
 
-		fsm.registerFirstState(new SiloWalkBehaviour(this, graph), Constants.STATE_WALK);
+		fsm.registerFirstState(new SiloWalkBehaviour(this, graph, moveTo), Constants.STATE_WALK);
 		fsm.registerState(new SendGraphBehaviour(this, graph), Constants.STATE_GRAPH_TRANSMISSION);
 		fsm.registerState(new GraphRequestBehaviour(this, EntityType.AGENT_TANKER.getName()), Constants.STATE_SEND_GRAPH_REQUEST);
+		
+		fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, previousState), Constants.STATE_START_INTERBLOCAGE);
+		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, moveTo), Constants.STATE_INTERBLOCAGE_LISTENER);
+		fsm.registerState(new SiloInterblocageResolutionBehaviour(this, graph, interblocageMessage, moveTo), Constants.STATE_INTERBLOCAGE_RESOLUTION);
 	
 
 		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)
@@ -116,6 +126,17 @@ public class SiloAgent extends abstractAgent {
 		//fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
 		fsm.registerTransition(Constants.STATE_CHECK_MAILBOX, Constants.STATE_WALK, Constants.GOTO_STATE_WALK);
 
+		//Gérer les interblocages :
+		fsm.registerTransition(Constants.STATE_CHECK_MAILBOX, Constants.STATE_INTERBLOCAGE_RESOLUTION, Constants.GOTO_STATE_INTERBLOCAGE_RESOLUTION);
+		fsm.registerTransition(Constants.STATE_CHECK_MAILBOX, Constants.STATE_INTERBLOCAGE_LISTENER, Constants.GOTO_STATE_INTERBLOCAGE_LISTENER);
+		fsm.registerDefaultTransition(Constants.STATE_START_INTERBLOCAGE, Constants.STATE_CHECK_MAILBOX);
+		fsm.registerDefaultTransition(Constants.STATE_INTERBLOCAGE_RESOLUTION, Constants.STATE_WALK); //TODO !!! !!!!!!!!!!!!!!!!!!!!
+		
+		fsm.registerTransition(Constants.STATE_INTERBLOCAGE_LISTENER, Constants.STATE_WALK, Constants.HAS_PRIORITY);
+		fsm.registerTransition(Constants.STATE_INTERBLOCAGE_LISTENER, Constants.STATE_WALK, Constants.GIVES_PRIORITY); //TODO 18.4.: To be changed to STATE_GIVES_PRIORITY once the class works 
+		fsm.registerTransition(Constants.STATE_INTERBLOCAGE_LISTENER, Constants.STATE_WALK, Constants.NO_RESPONSE); //TODO 18.4: We want to retry to move again, to find another way or to stay (i.e., blocking Golem), or resend the message, or...?
+		
+		
 		addBehaviour(fsm);
 
 

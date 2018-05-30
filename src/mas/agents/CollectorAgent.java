@@ -14,10 +14,11 @@ import jade.lang.acl.ACLMessage;
 import mas.abstractAgent;
 import mas.behaviours.BFSWalkBehaviour;
 import mas.behaviours.CheckMailBoxBehaviour;
+import mas.behaviours.CollectorInterblocageResolutionBehaviour;
 import mas.behaviours.CollectorWalkBehaviour;
 import mas.behaviours.GraphRequestBehaviour;
 import mas.behaviours.InterblocageListenerBehaviour;
-import mas.behaviours.InterblocageResolutionBehaviour;
+import mas.behaviours.ExploInterblocageResolutionBehaviour;
 import mas.behaviours.SendGraphBehaviour;
 import mas.behaviours.SendInterblocageStartMessageBehaviour;
 import mas.graph.Graph;
@@ -93,7 +94,7 @@ public class CollectorAgent extends abstractAgent {
 		
 		fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, previousState), Constants.STATE_START_INTERBLOCAGE);
 		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, moveTo), Constants.STATE_INTERBLOCAGE_LISTENER);
-		fsm.registerState(new InterblocageResolutionBehaviour(this, graph, interblocageMessage, moveTo), Constants.STATE_INTERBLOCAGE_RESOLUTION);
+		fsm.registerState(new CollectorInterblocageResolutionBehaviour(this, graph, interblocageMessage, moveTo), Constants.STATE_INTERBLOCAGE_RESOLUTION);
 
 		
 		//Se déplacer 
