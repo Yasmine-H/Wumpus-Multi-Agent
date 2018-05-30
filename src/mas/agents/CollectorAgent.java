@@ -115,7 +115,8 @@ public class CollectorAgent extends abstractAgent {
 		fsm.registerDefaultTransition(Constants.STATE_GRAPH_TRANSMISSION, Constants.STATE_CHECK_MAILBOX);
 		fsm.registerTransition(Constants.STATE_CHECK_MAILBOX, Constants.STATE_WALK, Constants.GOTO_STATE_WALK);
 
-
+		addBehaviour(fsm);
+		
 		System.out.println("the agent "+this.getLocalName()+ " is started");
 
 	}
@@ -124,7 +125,26 @@ public class CollectorAgent extends abstractAgent {
 	 * This method is automatically called after doDelete()
 	 */
 	protected void takeDown(){
-
+		try
+		{
+			DFService.deregister(this);
+		}
+		catch(FIPAException fe)
+		{
+			fe.printStackTrace();
+		}
 	}
 	
+	
+	public StringBuilder getMoveTo() {
+		return moveTo;
+	}
+	
+	public ACLMessage getInterblocageMessage() {
+		return interblocageMessage;
+	}
+	
+	public void setInterblocageMessage(ACLMessage msg) {
+		interblocageMessage = msg;
+	}
 }

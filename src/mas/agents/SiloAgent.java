@@ -135,5 +135,17 @@ public class SiloAgent extends abstractAgent {
 	protected void takeDown(){
 
 	}
+	
+	public StringBuilder getMoveTo() {
+		return moveTo;
+	}
+	
+	public ACLMessage getInterblocageMessage() {
+		return interblocageMessage;
+	}
+	
+	public void setInterblocageMessage(ACLMessage msg) {
+		interblocageMessage = msg;
+	}
 
 }
