@@ -4,21 +4,20 @@ import java.util.ArrayList;
 
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import mas.abstractAgent;
+import mas.agents.Constants;
 import mas.graph.Graph;
 import mas.graph.Node;
-import mas.others.InterblocageAcceptMT;
 
 public class InterblocageListenerBehaviour extends Behaviour{
 	private static final long serialVersionUID = 8688081240099240575L;
 	
-	public static final int HAS_PRIORITY = 1;
-	public static final int GIVES_PRIORITY = 0;
-	public static final int NO_RESPONSE = -1;
-	
+//	public static final int HAS_PRIORITY = 1;
+//	public static final int GIVES_PRIORITY = 0;
+//	public static final int NO_RESPONSE = -1;
+//	
 	private Graph graph;
 	private ArrayList<AID> senders;
 	private int result;
@@ -32,7 +31,7 @@ public class InterblocageListenerBehaviour extends Behaviour{
 		this.senders=senders;
 		this.moveTo = moveTo;
 	}
-
+//
 	@Override
 	public void action() {
 		// TODO Auto-generated method stub
@@ -44,13 +43,13 @@ public class InterblocageListenerBehaviour extends Behaviour{
 		//ACLMessage msg = myAgent.blockingReceive(mt, originalMsg.getReplyByDate().getTime()-System.currentTimeMillis());
 		//TODO 18.4: Create a constant for 3000, and check out if it is not too much 
 		ACLMessage msg = myAgent.receive(mt);
-		result = NO_RESPONSE;
+		result = Constants.NO_RESPONSE;
 		
 		if(msg != null) {
 			System.out.println("Agent : "+myAgent.getLocalName()+" new msg received : "+msg.getContent());
 			if (msg.getPerformative() == ACLMessage.AGREE) {
 				System.out.println(myAgent.getLocalName()+" has priority! It will move.");
-				result = HAS_PRIORITY;
+				result = Constants.HAS_PRIORITY;
 			}
 			else if(msg.getPerformative() == ACLMessage.REFUSE) {
 				System.out.println(myAgent.getLocalName()+" has to give priority! It will go to the state GivePriorityBehaviour.");
@@ -68,7 +67,7 @@ public class InterblocageListenerBehaviour extends Behaviour{
 						}
 					}
 				}
-				result = GIVES_PRIORITY;
+				result = Constants.GIVES_PRIORITY;
 			}
 		}
 		else {
