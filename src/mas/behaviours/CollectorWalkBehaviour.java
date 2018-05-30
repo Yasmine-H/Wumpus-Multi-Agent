@@ -120,7 +120,7 @@ public class CollectorWalkBehaviour extends SimpleBehaviour {
 		//next move planification	
 		Node goalNode;
 		if(((mas.abstractAgent)this.myAgent).getBackPackFreeSpace() < 10){
-			goalNode = graph.getSiloPosition(); //we must empty the backpack
+			goalNode = graph.getMeetingPosition(); //we must empty the backpack
 		}
 		else //there is enough space
 		{
@@ -129,7 +129,7 @@ public class CollectorWalkBehaviour extends SimpleBehaviour {
 			
 			
 			if(goalNode == null){ //if there is no more treasure to take, we go back to the silo
-				goalNode = graph.getSiloPosition();
+				goalNode = graph.getMeetingPosition();
 				System.out.println("no more treasure :(");
 			}
 			else

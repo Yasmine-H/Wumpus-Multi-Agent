@@ -12,21 +12,16 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import mas.abstractAgent;
-import mas.behaviours.BFSWalkBehaviour;
 import mas.behaviours.CheckMailBoxBehaviour;
 import mas.behaviours.CollectorInterblocageResolutionBehaviour;
 import mas.behaviours.CollectorWalkBehaviour;
-import mas.behaviours.GraphRequestBehaviour;
 import mas.behaviours.InterblocageListenerBehaviour;
-import mas.behaviours.ExploInterblocageResolutionBehaviour;
 import mas.behaviours.SendGraphBehaviour;
 import mas.behaviours.SendInterblocageStartMessageBehaviour;
 import mas.graph.Graph;
 
 public class CollectorAgent extends abstractAgent {
 
-//	public static final String SERVICE_PICK = "picker";
-	
 	/**
 	 * 
 	 */

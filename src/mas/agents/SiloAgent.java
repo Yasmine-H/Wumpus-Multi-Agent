@@ -13,8 +13,6 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import mas.abstractAgent;
 import mas.behaviours.CheckMailBoxBehaviour;
-import mas.behaviours.ExploInterblocageResolutionBehaviour;
-import mas.behaviours.GraphRequestBehaviour;
 import mas.behaviours.InterblocageListenerBehaviour;
 import mas.behaviours.SendGraphBehaviour;
 import mas.behaviours.SendInterblocageStartMessageBehaviour;
@@ -96,34 +94,15 @@ public class SiloAgent extends abstractAgent {
 
 		fsm.registerFirstState(new SiloWalkBehaviour(this, graph, moveTo), Constants.STATE_WALK);
 		fsm.registerState(new SendGraphBehaviour(this, graph), Constants.STATE_GRAPH_TRANSMISSION);
-		fsm.registerState(new GraphRequestBehaviour(this, EntityType.AGENT_TANKER.getName()), Constants.STATE_SEND_GRAPH_REQUEST);
 		
 		fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, previousState), Constants.STATE_START_INTERBLOCAGE);
 		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, moveTo), Constants.STATE_INTERBLOCAGE_LISTENER);
 		fsm.registerState(new SiloInterblocageResolutionBehaviour(this, graph, interblocageMessage, moveTo), Constants.STATE_INTERBLOCAGE_RESOLUTION);
-	
-
-		//TODO 7.4.2018: je viens de fusionner - ajout des états pour interblocage (vérifier si ca marche)
-		//fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, interblocageMessage), STATE_START_INTERBLOCAGE);
-
-		//fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, interblocageMessage), STATE_INTERBLOCAGE_LISTENER);
-		//TODO 11.4.2018 : LAST ATTENTION
-//		fsm.registerState(new CheckMailBoxBehaviour(this, graph, Constants.STATE_WALK/*, graph_subscribers*/), Constants.STATE_CHECK_MAILBOX);
 		fsm.registerState(new CheckMailBoxBehaviour(this, graph, new StringBuilder(Constants.STATE_WALK), previousState,/* graph_subscribers,*/ interblocageMessage, moveTo), Constants.STATE_CHECK_MAILBOX);
-		/*
-		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.MOVED);
-		fsm.registerTransition(STATE_WALK, STATE_SEND_GRAPH_REQUEST, BFSWalkBehaviour.BLOCKED); // /!\TODO
-		fsm.registerDefaultTransition(STATE_SEND_GRAPH_REQUEST, STATE_CHECK_MAILBOX);
-		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_TRANSMISSION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_TRANSMISSION);
-		fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
-		fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_WALK, CheckMailBoxBehaviour.GOTO_STATE_WALK);
-		 */
 
 		fsm.registerTransition(Constants.STATE_WALK, Constants.STATE_GRAPH_TRANSMISSION, Constants.MOVED);
 		fsm.registerTransition(Constants.STATE_WALK, Constants.STATE_START_INTERBLOCAGE, Constants.BLOCKED); // /!\TODO
 		fsm.registerDefaultTransition(Constants.STATE_GRAPH_TRANSMISSION, Constants.STATE_CHECK_MAILBOX);
-		//fsm.registerTransition(STATE_CHECK_MAILBOX, STATE_GRAPH_TRANSMISSION, CheckMailBoxBehaviour.GOTO_STATE_GRAPH_TRANSMISSION);
-		//fsm.registerDefaultTransition(STATE_GRAPH_TRANSMISSION, STATE_CHECK_MAILBOX);
 		fsm.registerTransition(Constants.STATE_CHECK_MAILBOX, Constants.STATE_WALK, Constants.GOTO_STATE_WALK);
 
 		//Gérer les interblocages :
@@ -141,11 +120,6 @@ public class SiloAgent extends abstractAgent {
 
 
 
-		/*
-		//Add the behaviours
-		addBehaviour(new SiloWalkBehaviour(this, graph));
-		addBehaviour(new SayHello(this));
-		 */
 		System.out.println("the agent "+this.getLocalName()+ " is started");
 
 	}

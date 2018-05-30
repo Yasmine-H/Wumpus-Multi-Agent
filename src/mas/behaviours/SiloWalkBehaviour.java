@@ -51,6 +51,7 @@ public class SiloWalkBehaviour extends SimpleBehaviour {
 			
 			if(!fullyExplored){ //performs exploration behaviour
 				explorationWalk(lobs);
+				System.out.println("Silo : Not fully explored");
 			}
 			//System.out.println(this.myAgent.getLocalName()+" -- list of observables: "+lobs);
 			

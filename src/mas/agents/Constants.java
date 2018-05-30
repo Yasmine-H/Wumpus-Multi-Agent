@@ -24,7 +24,7 @@ public class Constants {
 	public static final int GIVES_PRIORITY = 0;
 	public static final int NO_RESPONSE = -1;
 	
-	
+	public static final int MAX_PARENT_DEGREE = 4;
 	
 	public static final int MOVED = 1;
 	public static final int BLOCKED = 0;
