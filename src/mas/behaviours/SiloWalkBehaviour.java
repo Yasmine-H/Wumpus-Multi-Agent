@@ -10,6 +10,8 @@ import env.Attribute;
 import env.Couple;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
+import mas.abstractAgent;
+import mas.agents.Constants;
 import mas.graph.Graph;
 import mas.graph.Node;
 
@@ -24,13 +26,14 @@ public class SiloWalkBehaviour extends SimpleBehaviour {
 	private boolean fullyExplored = false;
 	private boolean moved = false;
 	private ACLMessage interblocageMessage;
-	private String moveTo;
+	private StringBuilder moveTo;
 	private boolean inMeetingPosition = false;
 
 
-	public SiloWalkBehaviour(final mas.abstractAgent myagent, Graph graph) {
+	public SiloWalkBehaviour(final mas.abstractAgent myagent, Graph graph, StringBuilder moveTo) {
 		super(myagent);
 		this.graph=graph;
+		this.moveTo = moveTo;
 	}
 
 	@Override
@@ -133,7 +136,7 @@ public class SiloWalkBehaviour extends SimpleBehaviour {
 			neighbour.addNeighbour(graph.getNode(id));
 		}
 		
-		
+		/*
 		//next move plan
 		ArrayList<Node> pathToTheClosest = graph.getPathToClosestUnvisited(graph.getNode(id));
 		if(pathToTheClosest == null){
@@ -153,6 +156,55 @@ public class SiloWalkBehaviour extends SimpleBehaviour {
 
 				System.out.println(myAgent.getLocalName()+" Node to visit : "+pathToTheClosest.get(0).getId());
 			}
+		}*/
+		
+		System.out.println("MOVE TO AU DEBUT : "+moveTo);
+		if(moveTo.toString().equals("")) {
+			ArrayList<Node> pathToTheClosest = graph.getPathToClosestUnvisited(graph.getNode(id));
+			if(pathToTheClosest == null){
+				System.out.println("The graph has been fully explored ! List of nodes : \n");
+				fullyExplored = true ;
+				graph.sort();
+				//graph.printNodes();
+			}
+			else{
+				if(pathToTheClosest.get(0).getId().equalsIgnoreCase(id)){ //if the first node of the path is the current node, which is normally the case 
+					//TODO 26.2.: it shouldn't be the case, it is not very proper like this!
+					pathToTheClosest.remove(0);
+				}
+				//System.out.println("Exploration de "+myAgent.getLocalName());
+				//graph.printNodes();
+				moveTo = moveTo.replace(0, moveTo.length(),pathToTheClosest.get(0).getId());
+				moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString()); //we visit the first next node on the path
+
+				//System.out.println("Node to visit : "+pathToTheClosest.get(0).getId());
+
+			}
+		}
+		else { //we know where we want to move
+			System.out.println(" ................ MOVE TO : "+moveTo);
+			System.out.println(graph.getNode(id));
+
+			ArrayList<Node> pathToMoveTo = graph.getPathToGivenNode(graph.getNode(id), moveTo.toString());
+			System.out.println(pathToMoveTo);
+			try {
+				if(pathToMoveTo.get(0).getId().equalsIgnoreCase(id)) {
+					pathToMoveTo.remove(graph.getNode(id));
+				}
+				if(pathToMoveTo.size() == 1) { //we can reach directly the desired state
+					moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString());
+					//moveTo.replace(0, moveTo.length(), "");
+				}
+				else {
+					moved = ((mas.abstractAgent)this.myAgent).moveTo(pathToMoveTo.get(0).getId());
+				}
+			}
+			catch(Exception e) {
+				if(!moveTo.toString().equalsIgnoreCase(graph.getNode(id).getId()))
+					moved = false;
+				else
+					moved = true;
+			}
 		}
 
 	}
@@ -171,6 +223,21 @@ public class SiloWalkBehaviour extends SimpleBehaviour {
 				}
 
 		return true;
+	}
+	
+	public int onEnd(){
+		// TODO 28.2 : FSMBehaviour start moving to inform the other agents
+		if(moved) {
+			if(moveTo.toString().equalsIgnoreCase(((abstractAgent) myAgent).getCurrentPosition())) {
+				moveTo.replace(0, moveTo.length(), "");
+			}
+			//
+			return Constants.MOVED;
+		}
+		else {
+			return Constants.BLOCKED;
+		}
+
 	}
 
 }
