@@ -52,10 +52,53 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 	public void action() {
 		//Example to retrieve the current position
 		String myPosition=((mas.abstractAgent)this.myAgent).getCurrentPosition();
+		
 		if(fullyExplored) {
+			//List of observable from the agent's current position
+			List<Couple<String,List<Attribute>>> lobs=((mas.abstractAgent)this.myAgent).observe();//myPosition
+			System.out.println(this.myAgent.getLocalName()+" -- list of observables: "+lobs);
 
+			String id = lobs.get(0).getLeft();
+			graph.getNode(id).setContent((List<Attribute>)lobs.get(0).getRight());
+			
+			if(moveTo.toString().equals("")) {
+					ArrayList<Node> neighbours = graph.getNode(myPosition).getNeighbours();
+					String randomNeighbour = getNeighbourNotInLine(neighbours);
+					
+					moveTo = moveTo.replace(0, moveTo.length(),randomNeighbour);
+					moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString()); //we visit the first next node on the path
+
+					//System.out.println("Node to visit : "+pathToTheClosest.get(0).getId());
+
+			}
+			else { //we know where we want to move
+				System.out.println(" ................ MOVE TO : "+moveTo);
+				System.out.println(graph.getNode(id));
+
+				ArrayList<Node> pathToMoveTo = graph.getPathToGivenNode(graph.getNode(id), moveTo.toString());
+				System.out.println(pathToMoveTo);
+				try {
+					if(pathToMoveTo.get(0).getId().equalsIgnoreCase(id)) {
+						pathToMoveTo.remove(graph.getNode(id));
+					}
+					if(pathToMoveTo.size() == 1) { //we can reach directly the desired state
+						moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString());
+						//moveTo.replace(0, moveTo.length(), "");
+					}
+					else {
+						moved = ((mas.abstractAgent)this.myAgent).moveTo(pathToMoveTo.get(0).getId());
+					}
+				}
+				catch(Exception e) {
+					if(!moveTo.toString().equalsIgnoreCase(graph.getNode(id).getId()))
+						moved = false;
+					else
+						moved = true;
+				}
+			}
 		}
-		else {
+		
+		else { //not fully explored !
 
 			if (myPosition!=""){
 				//List of observable from the agent's current position
@@ -90,6 +133,9 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 						graph.getNode(id).setContent((List<Attribute>)lobs.get(0).getRight());  
 						//TODO 26.2.: setContent
 						//TODO 26.2.: store somewhere the node instead of repeating all the time graph.getNode(id)
+					}
+					else {
+						graph.getNode(id).setContent((List<Attribute>)lobs.get(0).getRight());
 					}
 				}
 
@@ -175,6 +221,24 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 		}
 
 	}
+	
+	public String getNeighbourNotInLine(ArrayList<Node> neighbourhood) {
+		ArrayList<Node> adepts = new ArrayList();
+		for(Node node : neighbourhood) {
+			if(node.getNeighbours().size() > 2) {
+				adepts.add(node);
+			}
+		}
+		if (adepts.size() > 0) {
+			int index = (int)Math.random()*adepts.size();
+			return adepts.get(index).getId();	
+		}
+		else {
+			int index = (int)Math.random()*neighbourhood.size();
+			return neighbourhood.get(index).getId();
+		}
+	}
+}
 
 	//=======
 	//package mas.behaviours;
@@ -341,4 +405,3 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 	//	}
 	//
 	//>>>>>>> master
-}
