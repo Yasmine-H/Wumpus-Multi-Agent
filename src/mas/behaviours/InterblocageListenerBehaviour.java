@@ -70,7 +70,7 @@ public class InterblocageListenerBehaviour extends Behaviour{
 				result = Constants.GIVES_PRIORITY;
 			}
 		}
-		else {
+		else { //we still don't have a response - we try to move elsewhere...
 			ArrayList<Node> neighbours = graph.getNode(((abstractAgent) myAgent).getCurrentPosition()).getNeighbours();
 			for(Node node :neighbours) {
 					boolean moved = ((mas.abstractAgent)this.myAgent).moveTo(node.getId()); //moveTo.replace(0, moveTo.length(), node.getId());

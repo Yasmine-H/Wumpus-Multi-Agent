@@ -64,8 +64,7 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 						
 					}
 				}
-			System.out.println(EntityType.AGENT_COLLECTOR.getName());
-			System.out.println(((EntityType)myAgent.getArguments()[1]).getName());
+				
 			if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_COLLECTOR.getName())) {
 				System.out.println("In IF .................................................................. ");
 				msg.setContent("INTERBLOCAGE DETECTED: \nAgent: "+myAgent.getLocalName()+"\nType: COLL \nBlocked at: "

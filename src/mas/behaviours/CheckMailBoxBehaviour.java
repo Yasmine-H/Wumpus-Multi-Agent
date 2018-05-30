@@ -4,13 +4,16 @@ package mas.behaviours;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import env.EntityType;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
 import mas.abstractAgent;
 import mas.agents.BFSExploAgent;
+import mas.agents.CollectorAgent;
 import mas.agents.Constants;
+import mas.agents.SiloAgent;
 import mas.graph.Graph;
 import mas.graph.Node;
 
@@ -69,9 +72,10 @@ public class CheckMailBoxBehaviour extends Behaviour{
 				else {
 					ArrayList<Node> neighbours = graph.getAllNodes();
 					for(Node node :neighbours) {
-						
+						System.out.println("node to try to move : "+node.getId());
 						boolean moved = ((mas.abstractAgent)this.myAgent).moveTo(node.getId()); //moveTo.replace(0, moveTo.length(), node.getId());
 						if(moved) {
+							System.out.println("move successfull");
 							break;
 						}
 					}
@@ -80,14 +84,23 @@ public class CheckMailBoxBehaviour extends Behaviour{
 				break;
 			case ACLMessage.REQUEST :
 				if(msg.getContent().contains("INTERBLOCAGE")) {
-					ACLMessage waitMeMsg = new ACLMessage(ACLMessage.CONFIRM);
-					waitMeMsg.setSender(myAgent.getAID());
-					waitMeMsg.addReceiver(msg.getSender());
-					waitMeMsg.setContent("INTERBLOCAGE : I've received your message. Wait me please, I will find a solution.");
-					((abstractAgent) myAgent).sendMessage(waitMeMsg);
+					//ACLMessage waitMeMsg = new ACLMessage(ACLMessage.CONFIRM);
+					//waitMeMsg.setSender(myAgent.getAID());
+					//waitMeMsg.addReceiver(msg.getSender());
+					//waitMeMsg.setContent("INTERBLOCAGE : I've received your message. Wait me please, I will find a solution.");
+					//((abstractAgent) myAgent).sendMessage(waitMeMsg);
 					
 					interblocageMessage = msg;
-					((BFSExploAgent) myAgent).setInterblocageMessage(msg);
+					if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_COLLECTOR.getName())) {
+						((CollectorAgent) myAgent).setInterblocageMessage(msg);
+					}
+					else if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_EXPLORER.getName())) {
+						((BFSExploAgent) myAgent).setInterblocageMessage(msg);
+					}
+					else if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_TANKER.getName())) {
+						((SiloAgent) myAgent).setInterblocageMessage(msg);
+					}
+					//((BFSExploAgent) myAgent).setInterblocageMessage(msg);
 					result = Constants.GOTO_STATE_INTERBLOCAGE_RESOLUTION;
 				}
 				
