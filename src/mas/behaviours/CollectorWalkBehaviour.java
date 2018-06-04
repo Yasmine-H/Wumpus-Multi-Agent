@@ -20,149 +20,164 @@ public class CollectorWalkBehaviour extends SimpleBehaviour {
 	private static final long serialVersionUID = -4023577769135483172L;
 	private Graph graph;
 	private String treasureType;
-	private StringBuilder moveTo;
+	private StringBuilder moveToNext;
 	private boolean fullyExplored = false;
 	private StringBuilder previousState;
 	private boolean moved = false;
+	private StringBuilder moveToGoal;
+	private boolean missionCompleted = false;
+//	private boolean noTreasure = false;
+	private boolean goingToMeetingPoint = false;
 	
 	
-	
-	public CollectorWalkBehaviour (final mas.abstractAgent myagent, Graph graph, StringBuilder moveTo, StringBuilder previousState) {
+	public CollectorWalkBehaviour (final mas.abstractAgent myagent, Graph graph, StringBuilder moveTo, StringBuilder moveToGoal, StringBuilder previousState) {
 		super(myagent);
 		this.graph = graph;
 		this.treasureType = ((mas.abstractAgent)this.myAgent).getMyTreasureType();
-		this.moveTo = moveTo;
+		this.moveToNext = moveTo;
 		this.previousState = previousState;
+		this.moveToGoal = moveToGoal;
 	}
 	
 	@Override
 	public void action() {
-		System.out.println(myAgent.getLocalName()+"************************CollectorWalkBehaviour****************************");
+		System.out.println(myAgent.getLocalName()+"************************CollectorBehaviour****************************"+fullyExplored);
 		
 		System.out.println(myAgent.getLocalName()+" : My current backpack capacity is:"+ ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace());
 		System.out.println(myAgent.getLocalName()+" : My type is : "+((mas.abstractAgent)this.myAgent).getMyTreasureType());
+		System.out.println(myAgent.getLocalName()+" : My old goal is : "+moveToGoal.toString());
 		
 		String myPosition=((mas.abstractAgent)this.myAgent).getCurrentPosition();
 		
-
 		if (myPosition!=""){
-		
+			
 			// empty backpack if possible 
-			System.out.println("result of empty : "+((mas.abstractAgent)this.myAgent).emptyMyBackPack("Silo"));
+			System.out.println("result of empty : "+((mas.abstractAgent)this.myAgent).emptyMyBackPack("Tank"));
 			System.out.println(myAgent.getLocalName()+" : the remaining backpack capacity after calling to empty is: "+ ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace());
 			
 		
 			List<Couple<String,List<Attribute>>> lobs=((mas.abstractAgent)this.myAgent).observe();
+			String id = lobs.get(0).getLeft();
 			
-			if(moveTo.toString().equals(""))
-			{
-				if(!fullyExplored){ // the agent explores the graph and collects when possible
-					explorationWalk(lobs);
-				}
-				
-				else{ // the agent collects the treasures
-					collectionWalk(lobs);
-				}
-			}
-			else{
-				String id = lobs.get(0).getLeft();
-				System.out.println(" ................ MOVE TO : "+moveTo);
-				System.out.println(graph.getNode(id));
+			//list of attribute associated to the currentPosition
+			List<Attribute> lattribute= lobs.get(0).getRight();
 
-				ArrayList<Node> pathToMoveTo = graph.getPathToGivenNode(graph.getNode(id), moveTo.toString());
-				System.out.println(pathToMoveTo);
-				try {
-					if(pathToMoveTo.get(0).getId().equalsIgnoreCase(id)) {
-						pathToMoveTo.remove(graph.getNode(id));
-					}
-					if(pathToMoveTo.size() == 1) { //we can reach directly the desired state
-						moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString());
-						//moveTo.replace(0, moveTo.length(), "");
-					}
-					else {
-						moved = ((mas.abstractAgent)this.myAgent).moveTo(pathToMoveTo.get(0).getId());
-					}
-				}
-				catch(Exception e) {
-					if(!moveTo.toString().equalsIgnoreCase(graph.getNode(id).getId()))
-						moved = false;
-					else
-						moved = true;
-				}
+			missionCompleted(graph.getNode(id));
+			
+			if(goingToMeetingPoint && ((mas.abstractAgent)this.myAgent).emptyMyBackPack("Tank")){
+				goingToMeetingPoint = false;
+				moveToGoal.replace(0, moveToGoal.length(), "");
 			}
-		
-		}
-	
-		
-	}
 
-	private void collectionWalk(List<Couple<String, List<Attribute>>> lobs) {
-	
-		System.out.println(myAgent.getLocalName()+"************************CollectionWalk****************************");
-		
-		String id = lobs.get(0).getLeft();
-		List<Attribute> lattribute= lobs.get(0).getRight();
-		Node currentNode = graph.getNode(id);
-		
-		if(((mas.abstractAgent)this.myAgent).getBackPackFreeSpace() > 0)
-		{
-			//collect the treasure
-		
-			boolean b = collectTreasure(lattribute);
-		
-			//update graph
-			if(b){
-			List<Couple<String,List<Attribute>>> new_lobs=((mas.abstractAgent)this.myAgent).observe(); 
-			List<Attribute> newContentList = new_lobs.get(0).getRight();
-			currentNode.setContent(newContentList);
-			}
-		}
-		//next move planification	
-		Node goalNode;
-		if(((mas.abstractAgent)this.myAgent).getBackPackFreeSpace() < 10){
-			goalNode = graph.getMeetingPosition(); //we must empty the backpack
-		}
-		else //there is enough space
-		{
-			goalNode = graph.getBestNode(currentNode, treasureType, ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace());
-		
-			
-			
-			if(goalNode == null){ //if there is no more treasure to take, we go back to the silo
-				goalNode = graph.getMeetingPosition();
-				System.out.println("no more treasure :(");
+			if(!fullyExplored){ // the agent explores the graph and collects when possible
+				updateGraph(lobs);
 			}
 			else
 			{
-				System.out.println("The best node is : "+goalNode.getId());
+				updateNodeContent(id);
 			}
-		}
-		ArrayList<Node> path = graph.getPath(currentNode, goalNode);
-		
-		
-		if(path!=null){
-			if(path.get(0).getId().equalsIgnoreCase(id)){ //if the first node of the path is the current node, which is normally the case 
-				//TODO 26.2.: it shouldn't be the case, it is not very proper like this!
-				path.remove(0);
+
+			//collect the treasure
+			if(((mas.abstractAgent)this.myAgent).getBackPackFreeSpace() != 0)
+			{
+				boolean b = collectTreasure(lattribute);
+				
+				//update the graph if the agent picked (part of) the treasure
+				if (b){
+					System.out.println("!!!!!NODE CONTENT UPDATED OF "+id);
+					updateNodeContent(id);
+				}
 			}
-			moveTo = moveTo.replace(0, moveTo.length(),path.get(0).getId());
-			moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString()); //we visit the first next node on the path
-			System.out.println(myAgent.getLocalName()+"!!!!!!!!!!!!!!!!!!MOVING TOOOOOO :: "+moveTo+" bc bestNode is : "+goalNode.getId()+
-					"\n and complete path is "+path.toString());
-		}
-		else{ 
-			System.out.println(myAgent.getLocalName()+" ERROR path to "+goalNode+" is null :o");
-			
+//			emptyBackPackMissionCompleted();
+			if(moveToGoal.toString().equals(""))// || missionCompleted)
+			{
+				if(!fullyExplored /*|| missionCompleted*/)// || missionCompleted)
+				{
+					System.out.println(myAgent.getLocalName()+" : not fully explored or missioncopleted ");//+missionCompleted);
+					explorationWalk(id);
+				}
+				else
+				{
+					System.out.println();
+					collectionWalk(graph.getNode(id));
+				}
+			}
+			else{
+				
+				System.out.println(" ................ MOVE TO : "+moveToNext);
+				System.out.println(graph.getNode(id));
+
+				ArrayList<Node> pathToMoveTo = graph.getPathToGivenNode(graph.getNode(id), moveToGoal.toString());
+				moveTo(pathToMoveTo, id);
+				
+			}
+		
 		}
 		
 	}
 
+//	private boolean emptyBackPackMissionCompleted() {
+//		
+//		if(noTreasure && moveToGoal.toString().equals(graph.getMeetingPosition().getId()) 
+//				&& ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace()>0 && ((mas.abstractAgent)this.myAgent).emptyMyBackPack("Tank"))
+//		{
+//			missionCompleted = true;
+//			System.out.println(myAgent.getLocalName()+" I'm done !");
+//			return true;
+//		}
+//			
+//		
+//		
+//		return false;
+//	}
+
 	
+	private void missionCompleted(Node currentNode){
+		if(((mas.abstractAgent)this.myAgent).emptyMyBackPack("Tank") && graph.getBestNode(currentNode, treasureType, ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace())==null){
+			missionCompleted=true;
+//			moveToGoal.replace(0, moveToGoal.length(), "");
+			System.out.println(myAgent.getLocalName()+" DONEEEEE");
+		}
+	}
 	
+	private void collectionWalk(Node currentNode) {
 	
-	public void explorationWalk(List<Couple<String, List<Attribute>>> lobs){
+		System.out.println(myAgent.getLocalName()+"************************CollectionWalk****************************"+fullyExplored);
 		
-		System.out.println(myAgent.getLocalName()+"************************ExplorationWalk****************************");
+		
+		//next move planification	
+			Node goalNode;
+			if(((mas.abstractAgent)this.myAgent).getBackPackFreeSpace()==0){
+				goalNode = graph.getMeetingPosition(); //we must empty the backpack
+				moveToGoal.replace(0, moveToGoal.length(), goalNode.getId());
+				goingToMeetingPoint = true;
+			}
+			else //there is enough space
+			{
+				goalNode = graph.getBestNode(currentNode, treasureType, ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace());
+				
+				if(goalNode == null){ //if there is no more treasure to take, we go back to the silo
+					goalNode = graph.getMeetingPosition();
+					moveToGoal.replace(0, moveToGoal.length(), goalNode.getId());
+					System.out.println("no more treasure :(");
+//					noTreasure = true;
+					goingToMeetingPoint = true;
+				}
+				else //we have a new goal
+				{
+					goingToMeetingPoint = false;
+					System.out.println("The best node is : "+goalNode.getId());
+				}
+			}
+			moveToGoal.replace(0, moveToGoal.length(), goalNode.getId());
+			ArrayList<Node> path = graph.getPath(currentNode, goalNode);
+			moveTo(path, currentNode.getId());
+			
+		
+	}
+
+
+	public void updateGraph(List<Couple<String, List<Attribute>>> lobs){
 
 		System.out.println(this.myAgent.getLocalName()+" -- list of observables: "+lobs);
 
@@ -202,93 +217,79 @@ public class CollectorWalkBehaviour extends SimpleBehaviour {
 			neighbour.addNeighbour(graph.getNode(id));
 		}
 
+	}
+	
+	
+	public void explorationWalk(String id){
+		
+		System.out.println(myAgent.getLocalName()+"************************ExplorationWalk****************************");
 
-		//list of attribute associated to the currentPosition
-		List<Attribute> lattribute= lobs.get(0).getRight();
-
-		//collect the treasure
-		boolean b = collectTreasure(lattribute);
 		
-		//update the graph if the agent picked (part of) the treasure
-		if (b){
-			List<Couple<String,List<Attribute>>> new_lobs=((mas.abstractAgent)this.myAgent).observe(); 
-			List<Attribute> newContentList = new_lobs.get(0).getRight();
-			graph.getNode(id).setContent(newContentList);
-		}
+//		System.out.println("MOVE TO AU DEBUT : "+moveToNext);
 		
+		Node goalNode = graph.getRandomUnvisited();
+		ArrayList<Node> pathToTheClosest = graph.getPath(graph.getNode(id), goalNode);
 		
-		/*
-		//next move plan
-		ArrayList<Node> pathToTheClosest = graph.getPathToClosestUnvisited(graph.getNode(id));
-		if(pathToTheClosest == null){
-			System.out.println("The graph has been fully explored ! List of nodes : \n");
-			fullyExplored = true ;
-			graph.sort();
-			//graph.printNodes();
-		}
-		else{
-			if(pathToTheClosest.get(0).getId().equalsIgnoreCase(id)){ //if the first node of the path is the current node, which is normally the case 
-				//TODO 26.2.: it shouldn't be the case, it is not very proper like this!
-				pathToTheClosest.remove(0);
-				//System.out.println("Exploration de "+myAgent.getLocalName());
-				//graph.printNodes();
-				moveTo = moveTo.replace(0, moveTo.length(),pathToTheClosest.get(0).getId());
-				moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString()); //we visit the first next node on the path
-				
-				
-			}
-		}*/
-		
-		System.out.println("MOVE TO AU DEBUT : "+moveTo);
-		if(moveTo.toString().equals("")) {
-			ArrayList<Node> pathToTheClosest = graph.getPathToClosestUnvisited(graph.getNode(id));
+//			ArrayList<Node> pathToTheClosest = graph.getPathToClosestUnvisited(graph.getNode(id));
 			if(pathToTheClosest == null){
 				System.out.println("The graph has been fully explored ! List of nodes : \n");
 				fullyExplored = true ;
 				graph.sort();
+				moveToNext.replace(0, moveToNext.length(), "");
+				moveToGoal.replace(0, moveToGoal.length(), "");
 				//graph.printNodes();
 			}
 			else{
-				if(pathToTheClosest.get(0).getId().equalsIgnoreCase(id)){ //if the first node of the path is the current node, which is normally the case 
-					//TODO 26.2.: it shouldn't be the case, it is not very proper like this!
-					pathToTheClosest.remove(0);
-				}
-				//System.out.println("Exploration de "+myAgent.getLocalName());
-				//graph.printNodes();
-				moveTo = moveTo.replace(0, moveTo.length(),pathToTheClosest.get(0).getId());
-				moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString()); //we visit the first next node on the path
-
-				//System.out.println("Node to visit : "+pathToTheClosest.get(0).getId());
-
+				
+				moveToGoal.replace(0, moveToGoal.length(), pathToTheClosest.get(pathToTheClosest.size()-1).getId());
+				moveTo(pathToTheClosest, id);
+				
 			}
+
+	}
+	
+	
+	private void updateNodeContent(String id) {
+		List<Couple<String,List<Attribute>>> new_lobs=((mas.abstractAgent)this.myAgent).observe(); 
+		List<Attribute> newContentList = new_lobs.get(0).getRight();
+//		System.out.println(id+"================oldcontent : "+graph.getNode(id).getContentList().toString());
+		graph.getNode(id).setContent(newContentList);
+//		System.out.println(id+"================newcontent : "+graph.getNode(id).getContentList().toString());
+	}
+
+	public void moveTo(ArrayList<Node> pathToMoveTo, String currentNode){
+		
+		
+		System.out.print(myAgent.getLocalName()+" MOVING TOOOOOOOO ::: "+moveToGoal.toString()+ " path is :: ");
+		System.out.println(pathToMoveTo);
+		try {
+			if(pathToMoveTo.get(0).getId().equalsIgnoreCase(currentNode)) {
+				pathToMoveTo.remove(graph.getNode(currentNode));
+			}
+			if(pathToMoveTo.size() == 1) { //we can reach directly the desired state
+				moveToNext.replace(0, moveToNext.length(), pathToMoveTo.get(0).getId());
+				moved = ((mas.abstractAgent)this.myAgent).moveTo(moveToNext.toString());
+			
+				//moveTo.replace(0, moveTo.length(), "");
+			}
+			else {
+				moved = ((mas.abstractAgent)this.myAgent).moveTo(pathToMoveTo.get(0).getId());
+				moveToNext.replace(0, moveToNext.length(), pathToMoveTo.get(0).getId());
+			}
+			
 		}
-		else { //we know where we want to move
-			System.out.println(" ................ MOVE TO : "+moveTo);
-			System.out.println(graph.getNode(id));
-
-			ArrayList<Node> pathToMoveTo = graph.getPathToGivenNode(graph.getNode(id), moveTo.toString());
-			System.out.println(pathToMoveTo);
-			try {
-				if(pathToMoveTo.get(0).getId().equalsIgnoreCase(id)) {
-					pathToMoveTo.remove(graph.getNode(id));
-				}
-				if(pathToMoveTo.size() == 1) { //we can reach directly the desired state
-					moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString());
-					//moveTo.replace(0, moveTo.length(), "");
-				}
-				else {
-					moved = ((mas.abstractAgent)this.myAgent).moveTo(pathToMoveTo.get(0).getId());
-				}
+		catch(Exception e) {
+			if(!moveToNext.toString().equalsIgnoreCase(graph.getNode(currentNode).getId())){
+				moved = false;
+				//moveToNext.replace(0, moveToNext.length(), pathToMoveTo.get(0).getId());
 			}
-			catch(Exception e) {
-				if(!moveTo.toString().equalsIgnoreCase(graph.getNode(id).getId()))
-					moved = false;
-				else
-					moved = true;
-			}
+				
+			else
+				moved = true;
 		}
 
 	}
+	
 	
 	public boolean collectTreasure(List<Attribute> lattribute){
 		
@@ -302,7 +303,7 @@ public class CollectorWalkBehaviour extends SimpleBehaviour {
 				System.out.println(myAgent.getLocalName()+" : The agent grabbed :"+((mas.abstractAgent)this.myAgent).pick());
 				System.out.println(myAgent.getLocalName()+" : the remaining backpack capacity is: "+ ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace());
 				//Empty backpack if silo agent nearby
-				((mas.abstractAgent)this.myAgent).emptyMyBackPack("Silo");
+				((mas.abstractAgent)this.myAgent).emptyMyBackPack("Tank");
 				System.out.println(myAgent.getLocalName()+" : the remaining backpack capacity after calling to empty is: "+ ((mas.abstractAgent)this.myAgent).getBackPackFreeSpace());
 				
 				b = true;
@@ -333,15 +334,31 @@ public class CollectorWalkBehaviour extends SimpleBehaviour {
 
 	}
 	
+	public boolean golemIsNear(){
+		List<Couple<String,List<Attribute>>> lobs=((mas.abstractAgent)this.myAgent).observe();
+		String id = lobs.get(0).getLeft();
+		
+		//list of attribute associated to the currentPosition
+		List<Attribute> lattribute= lobs.get(0).getRight();
+		
+		for(Attribute attr : lattribute){
+			if(attr.getName().contains("stench")){
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
 	@Override
 	public boolean done() {
 		
-		try {
-			System.out.println("Press Enter in the console to allow the agent "+this.myAgent.getLocalName() +" to execute its next move");
-			System.in.read();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			System.out.println("Press Enter in the console to allow the agent "+this.myAgent.getLocalName() +" to execute its next move");
+//			System.in.read();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
 		this.previousState.replace(0, this.previousState.length(), Constants.STATE_START_INTERBLOCAGE);
 		
@@ -350,9 +367,10 @@ public class CollectorWalkBehaviour extends SimpleBehaviour {
 	
 	public int onEnd(){
 		if(moved) {
-			if(moveTo.toString().equalsIgnoreCase(((abstractAgent) myAgent).getCurrentPosition())) {
-				moveTo.replace(0, moveTo.length(), "");
+			if(moveToGoal.toString().equalsIgnoreCase(((abstractAgent) myAgent).getCurrentPosition())) {
+				moveToGoal.replace(0, moveToGoal.length(), "");
 			}
+			moveToNext.replace(0, moveToNext.length(), "");
 			//
 			return Constants.MOVED;
 		}

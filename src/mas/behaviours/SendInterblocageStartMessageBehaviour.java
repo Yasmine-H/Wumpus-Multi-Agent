@@ -68,8 +68,8 @@ public class SendInterblocageStartMessageBehaviour extends Behaviour{
 			if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_COLLECTOR.getName())) {
 				//System.out.println("In IF .................................................................. ");
 				msg.setContent("INTERBLOCAGE DETECTED: \nAgent: "+myAgent.getLocalName()+"\nType: COLL \nBlocked at: "
-						+((abstractAgent) myAgent).getCurrentPosition()+"\nWant move to: "+((CollectorAgent) myAgent).getMoveTo()+""
-								+ "\nMy restant capacity : "+((CollectorAgent)myAgent).getBackPackFreeSpace());
+						+((abstractAgent) myAgent).getCurrentPosition()+"\nWant move to: "+((CollectorAgent) myAgent).getMoveTo()
+								/*+ "\nMy restant capacity : "+((CollectorAgent)myAgent).getBackPackFreeSpace()*/);
 			}
 			else if(((EntityType)myAgent.getArguments()[1]).getName().equalsIgnoreCase(EntityType.AGENT_EXPLORER.getName())) {
 				msg.setContent("INTERBLOCAGE DETECTED: \nAgent: "+myAgent.getLocalName()+"\nType: EXPLO \nBlocked at: "

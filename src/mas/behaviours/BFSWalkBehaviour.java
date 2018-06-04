@@ -38,21 +38,25 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 	private Graph graph;
 	private boolean fullyExplored = false;
 	private boolean moved = false;
-	private StringBuilder moveTo;
+	private StringBuilder moveToGoal;
+	private StringBuilder moveToNext;
 	private StringBuilder previousState;
 
-	public BFSWalkBehaviour (final mas.abstractAgent myagent, Graph graph, StringBuilder moveTo, StringBuilder previousState) {
+	public BFSWalkBehaviour (final mas.abstractAgent myagent, Graph graph, StringBuilder moveTo, StringBuilder moveToGoal, StringBuilder previousState) {
 		super(myagent);
 		this.graph = graph;
-		this.moveTo = moveTo;
+		this.moveToNext = moveTo;
+		this.moveToGoal = moveToGoal;
 		this.previousState = previousState;
 	}
 
 	@Override
 	public void action() {
+		System.out.println(myAgent.getLocalName()+"************************ExploWalkBehaviour**************************** ::"+fullyExplored);
+
 		//Example to retrieve the current position
 		String myPosition=((mas.abstractAgent)this.myAgent).getCurrentPosition();
-		
+
 		if(fullyExplored) {
 			//List of observable from the agent's current position
 			List<Couple<String,List<Attribute>>> lobs=((mas.abstractAgent)this.myAgent).observe();//myPosition
@@ -60,44 +64,47 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 
 			String id = lobs.get(0).getLeft();
 			graph.getNode(id).setContent((List<Attribute>)lobs.get(0).getRight());
-			
-			if(moveTo.toString().equals("")) {
-					ArrayList<Node> neighbours = graph.getNode(myPosition).getNeighbours();
-					String randomNeighbour = getNeighbourNotInLine(neighbours);
-					
-					moveTo = moveTo.replace(0, moveTo.length(),randomNeighbour);
-					moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString()); //we visit the first next node on the path
 
-					//System.out.println("Node to visit : "+pathToTheClosest.get(0).getId());
+			if(moveToGoal.toString().equals("")) {
+				ArrayList<Node> neighbours = graph.getNode(myPosition).getNeighbours();
+				String randomNeighbour = getNeighbourNotInLine(neighbours);
+
+				moveToGoal.replace(0, moveToGoal.length(),randomNeighbour);
+				moveToNext.replace(0, moveToNext.length(),randomNeighbour);
+				moved = ((mas.abstractAgent)this.myAgent).moveTo(moveToNext.toString()); //we visit the first next node on the path
+
+				//System.out.println("Node to visit : "+pathToTheClosest.get(0).getId());
 
 			}
 			else { //we know where we want to move
 				//System.out.println(" ................ MOVE TO : "+moveTo);
 				//System.out.println(graph.getNode(id));
 
-				ArrayList<Node> pathToMoveTo = graph.getPathToGivenNode(graph.getNode(id), moveTo.toString());
+				ArrayList<Node> pathToMoveTo = graph.getPathToGivenNode(graph.getNode(id), moveToGoal.toString());
+				
+				moveTo(pathToMoveTo, id);
 				//System.out.println(pathToMoveTo);
-				try {
-					if(pathToMoveTo.get(0).getId().equalsIgnoreCase(id)) {
-						pathToMoveTo.remove(graph.getNode(id));
-					}
-					if(pathToMoveTo.size() == 1) { //we can reach directly the desired state
-						moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString());
-						//moveTo.replace(0, moveTo.length(), "");
-					}
-					else {
-						moved = ((mas.abstractAgent)this.myAgent).moveTo(pathToMoveTo.get(0).getId());
-					}
-				}
-				catch(Exception e) {
-					if(!moveTo.toString().equalsIgnoreCase(graph.getNode(id).getId()))
-						moved = false;
-					else
-						moved = true;
-				}
+//				try {
+//					if(pathToMoveTo.get(0).getId().equalsIgnoreCase(id)) {
+//						pathToMoveTo.remove(graph.getNode(id));
+//					}
+//					if(pathToMoveTo.size() == 1) { //we can reach directly the desired state
+//						moved = ((mas.abstractAgent)this.myAgent).moveTo(moveToGoal.toString());
+//						//moveTo.replace(0, moveTo.length(), "");
+//					}
+//					else {
+//						moved = ((mas.abstractAgent)this.myAgent).moveTo(pathToMoveTo.get(0).getId());
+//					}
+//				}
+//				catch(Exception e) {
+//					if(!moveToGoal.toString().equalsIgnoreCase(graph.getNode(id).getId()))
+//						moved = false;
+//					else
+//						moved = true;
+//				}
 			}
 		}
-		
+
 		else { //not fully explored !
 
 			if (myPosition!=""){
@@ -147,7 +154,7 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 				//System.out.println("Before calling nexttovisit, the neighbours are : "+graph.getNode(id).getNeighbours().toString()+" and listNeighbours : "+listNeighboursId.toString());
 				//String idToVisit = graph.getClosestUnvisited(id, new ArrayList<Couple<String,String>>()); 
 				//System.out.println("MOVE TO AU DEBUT : "+moveTo);
-				if(moveTo.toString().equals("")) {
+				if(moveToGoal.toString().equals("")) {
 					ArrayList<Node> pathToTheClosest = graph.getPathToClosestUnvisited(graph.getNode(id));
 					if(pathToTheClosest == null){
 						System.out.println("The graph has been fully explored ! List of nodes : \n");
@@ -156,15 +163,18 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 						//graph.printNodes();
 					}
 					else{
-						if(pathToTheClosest.get(0).getId().equalsIgnoreCase(id)){ //if the first node of the path is the current node, which is normally the case 
-							//TODO 26.2.: it shouldn't be the case, it is not very proper like this!
-							pathToTheClosest.remove(0);
-						}
-						//System.out.println("Exploration de "+myAgent.getLocalName());
-						//graph.printNodes();
-						moveTo = moveTo.replace(0, moveTo.length(),pathToTheClosest.get(0).getId());
-						moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString()); //we visit the first next node on the path
-
+						
+						moveTo(pathToTheClosest, id);
+						
+//						if(pathToTheClosest.get(0).getId().equalsIgnoreCase(id)){ //if the first node of the path is the current node, which is normally the case 
+//							//TODO 26.2.: it shouldn't be the case, it is not very proper like this!
+//							pathToTheClosest.remove(0);
+//						}
+//						//System.out.println("Exploration de "+myAgent.getLocalName());
+//						//graph.printNodes();
+//						moveToGoal = moveToGoal.replace(0, moveToGoal.length(),pathToTheClosest.get(0).getId());
+//						moved = ((mas.abstractAgent)this.myAgent).moveTo(moveToGoal.toString()); //we visit the first next node on the path
+//
 						//System.out.println("Node to visit : "+pathToTheClosest.get(0).getId());
 
 					}
@@ -173,26 +183,28 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 					//System.out.println(" ................ MOVE TO : "+moveTo);
 					//System.out.println(graph.getNode(id));
 
-					ArrayList<Node> pathToMoveTo = graph.getPathToGivenNode(graph.getNode(id), moveTo.toString());
+					ArrayList<Node> pathToMoveTo = graph.getPathToGivenNode(graph.getNode(id), moveToGoal.toString());
 					//System.out.println(pathToMoveTo);
-					try {
-						if(pathToMoveTo.get(0).getId().equalsIgnoreCase(id)) {
-							pathToMoveTo.remove(graph.getNode(id));
-						}
-						if(pathToMoveTo.size() == 1) { //we can reach directly the desired state
-							moved = ((mas.abstractAgent)this.myAgent).moveTo(moveTo.toString());
-							//moveTo.replace(0, moveTo.length(), "");
-						}
-						else {
-							moved = ((mas.abstractAgent)this.myAgent).moveTo(pathToMoveTo.get(0).getId());
-						}
-					}
-					catch(Exception e) {
-						if(!moveTo.toString().equalsIgnoreCase(graph.getNode(id).getId()))
-							moved = false;
-						else
-							moved = true;
-					}
+					moveTo(pathToMoveTo, id);
+					
+//					try {
+//						if(pathToMoveTo.get(0).getId().equalsIgnoreCase(id)) {
+//							pathToMoveTo.remove(graph.getNode(id));
+//						}
+//						if(pathToMoveTo.size() == 1) { //we can reach directly the desired state
+//							moved = ((mas.abstractAgent)this.myAgent).moveTo(moveToGoal.toString());
+//							//moveTo.replace(0, moveTo.length(), "");
+//						}
+//						else {
+//							moved = ((mas.abstractAgent)this.myAgent).moveTo(pathToMoveTo.get(0).getId());
+//						}
+//					}
+//					catch(Exception e) {
+//						if(!moveToGoal.toString().equalsIgnoreCase(graph.getNode(id).getId()))
+//							moved = false;
+//						else
+//							moved = true;
+//					}
 				}
 			}
 		}
@@ -203,6 +215,14 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 	public boolean done() {
 		// TODO 
 		//return fullyExplored;
+
+//		try {
+//			System.out.println("Press Enter in the console to allow the agent "+this.myAgent.getLocalName() +" to execute its next move");
+//			System.in.read();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+
 		this.previousState.replace(0, this.previousState.length(), Constants.STATE_START_INTERBLOCAGE);
 		return true;
 	}
@@ -210,8 +230,8 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 	public int onEnd(){
 		// TODO 28.2 : FSMBehaviour start moving to inform the other agents
 		if(moved) {
-			if(moveTo.toString().equalsIgnoreCase(((abstractAgent) myAgent).getCurrentPosition())) {
-				moveTo.replace(0, moveTo.length(), "");
+			if(moveToGoal.toString().equalsIgnoreCase(((abstractAgent) myAgent).getCurrentPosition())) {
+				moveToGoal.replace(0, moveToGoal.length(), "");
 				if(((BFSExploAgent)myAgent).getInterblocageInCours()) {
 					((BFSExploAgent)myAgent).setInterblocageInCours(false);
 				}
@@ -224,7 +244,40 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 		}
 
 	}
-	
+
+	public void moveTo(ArrayList<Node> pathToMoveTo, String currentNode){
+
+		System.out.print(myAgent.getLocalName()+" MOVING TOOOOOOOO ::: "+moveToGoal.toString()+ "path is :: ");
+		System.out.println(pathToMoveTo);
+		try {
+			if(pathToMoveTo.get(0).getId().equalsIgnoreCase(currentNode)) {
+				pathToMoveTo.remove(graph.getNode(currentNode));
+			}
+			if(pathToMoveTo.size() == 1) { //we can reach directly the desired state
+				moveToNext.replace(0, moveToNext.length(), pathToMoveTo.get(0).getId());
+				moved = ((mas.abstractAgent)this.myAgent).moveTo(moveToNext.toString());
+
+				//moveTo.replace(0, moveTo.length(), "");
+			}
+			else {
+				moved = ((mas.abstractAgent)this.myAgent).moveTo(pathToMoveTo.get(0).getId());
+				moveToNext.replace(0, moveToNext.length(), pathToMoveTo.get(0).getId());
+			}
+
+		}
+		catch(Exception e) {
+			if(!moveToNext.toString().equalsIgnoreCase(graph.getNode(currentNode).getId())){
+				moved = false;
+				//moveToNext.replace(0, moveToNext.length(), pathToMoveTo.get(0).getId());
+			}
+
+			else
+				moved = true;
+		}
+
+	}
+
+
 	public String getNeighbourNotInLine(ArrayList<Node> neighbourhood) {
 		ArrayList<Node> adepts = new ArrayList();
 		for(Node node : neighbourhood) {
@@ -241,7 +294,7 @@ public class BFSWalkBehaviour extends SimpleBehaviour{
 			return neighbourhood.get(index).getId();
 		}
 	}
-	
+
 	public String getRandomNode() {
 		ArrayList<Node> adepts = new ArrayList();
 		for(Node node : graph.getAllNodes()) {

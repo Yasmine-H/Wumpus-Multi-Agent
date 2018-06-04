@@ -137,6 +137,7 @@ public class Node implements Comparable, Serializable{
 
 		for(Attribute content : getContentList())
 		{
+			System.out.println("Treasure type : "+treasureType+" and content : "+content.getName());
 			if(content.getName().equals(treasureType)){
 				return (int)content.getValue();
 				
@@ -199,16 +200,22 @@ public class Node implements Comparable, Serializable{
 	}
 	*/
 
-	public double getNeighbourhoodValue(List<Node> considered) {
+	public double getNeighbourhoodValue(List<Node> considered, int degree) {
+		
+		if(degree == 11){
+			return 0;
+		}
+		
+		
 		considered.add(this);
 		int nb_neighbours = getNeighbours().size();
-		if(nb_neighbours < 2){
+		if(nb_neighbours <= 2){
 //			System.out.println(this.getId()+" : value : 0");
 			return 0;
 		}
 		
 		else{
-			if(nb_neighbours == 2){
+			if(nb_neighbours == 3){
 //				System.out.println(this.getId()+" : value : 1");
 				return 1;
 			}
@@ -217,17 +224,27 @@ public class Node implements Comparable, Serializable{
 				
 				double value = nb_neighbours;
 				if(considered.size()==1){
-					value *= 2;
+//					value *= 2;
 //					System.out.println(getId()+" is a parent : ***********"+value);
 				}
 				
-				int degree = considered.size();
+				if(degree==1){
+//					value *= 2;
+//					System.out.println(getId()+" is a parent : ***********"+value);
+				}
+				
+				
 				for(Node neighbour : getNeighbours()){
-					if(!considered.contains(neighbour))
-					{
-						value += neighbour.getNeighbourhoodValue(considered)/degree;
-//						System.out.println(neighbour.getId()+" : value : "+neighbour.getNeighbourhoodValue(considered)/degree);
-					}
+					
+					value += neighbour.getNeighbourhoodValue(considered, degree+1)/degree;
+//					System.out.println(neighbour.getId()+" : value : "+neighbour.getNeighbourhoodValue(considered, degree+1)/degree);
+				
+//					
+//					if(!considered.contains(neighbour))
+//					{
+//						value += neighbour.getNeighbourhoodValue(considered, degree+1)/degree;
+//						System.out.println(neighbour.getId()+" : value : "+neighbour.getNeighbourhoodValue(considered, degree+1)/degree);
+//					}
 				}
 				
 //				System.out.println(this.getId()+" : value : "+value);

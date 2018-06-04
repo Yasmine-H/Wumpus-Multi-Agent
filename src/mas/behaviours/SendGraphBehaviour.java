@@ -88,7 +88,8 @@ public class SendGraphBehaviour extends SimpleBehaviour{
 					//msg.addReceiver(graph_subscriber);
 					msg.setContentObject(graph);
 					((mas.abstractAgent)this.myAgent).sendMessage(msg);
-					System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");//+"\nTHE NUMBER OF RECEIVERS SHOULD BE ::::: "+graph_subscribers.size());
+					System.out.println(">>Agent : "+myAgent.getLocalName()+"  graph sent");//+"\nTHE NUMBER OF RECEIVERS SHOULD BE ::::: "+graph_subscribers.size());
+//					System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");//+"\nTHE NUMBER OF RECEIVERS SHOULD BE ::::: "+graph_subscribers.size());
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (FIPAException e) {

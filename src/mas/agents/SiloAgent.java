@@ -31,7 +31,8 @@ public class SiloAgent extends abstractAgent {
 	
 	private Graph graph;
 	private ACLMessage interblocageMessage;
-	private StringBuilder moveTo;
+	private StringBuilder moveToGoal;
+	private StringBuilder moveToNext;
 	private StringBuilder previousState;
 	
 	private ArrayList<AID> receivers;
@@ -87,18 +88,19 @@ public class SiloAgent extends abstractAgent {
 		graph = new Graph();
 		interblocageMessage = new ACLMessage(ACLMessage.REQUEST);
 
-		moveTo = new StringBuilder("");
+		moveToGoal = new StringBuilder("");
+		moveToNext = new StringBuilder("");
 		previousState = new StringBuilder("");
 		receivers = new ArrayList<>();
 
 
-		fsm.registerFirstState(new SiloWalkBehaviour(this, graph, moveTo), Constants.STATE_WALK);
+		fsm.registerFirstState(new SiloWalkBehaviour(this, graph, moveToNext, moveToGoal, previousState), Constants.STATE_WALK);
 		fsm.registerState(new SendGraphBehaviour(this, graph), Constants.STATE_GRAPH_TRANSMISSION);
 		
 		fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, previousState), Constants.STATE_START_INTERBLOCAGE);
-		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, moveTo), Constants.STATE_INTERBLOCAGE_LISTENER);
-		fsm.registerState(new SiloInterblocageResolutionBehaviour(this, graph, interblocageMessage, moveTo), Constants.STATE_INTERBLOCAGE_RESOLUTION);
-		fsm.registerState(new CheckMailBoxBehaviour(this, graph, new StringBuilder(Constants.STATE_WALK), previousState,/* graph_subscribers,*/ interblocageMessage, moveTo), Constants.STATE_CHECK_MAILBOX);
+		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, moveToNext), Constants.STATE_INTERBLOCAGE_LISTENER);
+		fsm.registerState(new SiloInterblocageResolutionBehaviour(this, graph, interblocageMessage, moveToNext), Constants.STATE_INTERBLOCAGE_RESOLUTION);
+		fsm.registerState(new CheckMailBoxBehaviour(this, graph, new StringBuilder(Constants.STATE_WALK), previousState,/* graph_subscribers,*/ interblocageMessage, moveToGoal), Constants.STATE_CHECK_MAILBOX);
 
 		fsm.registerTransition(Constants.STATE_WALK, Constants.STATE_GRAPH_TRANSMISSION, Constants.MOVED);
 		fsm.registerTransition(Constants.STATE_WALK, Constants.STATE_START_INTERBLOCAGE, Constants.BLOCKED); // /!\TODO
@@ -132,7 +134,7 @@ public class SiloAgent extends abstractAgent {
 	}
 	
 	public StringBuilder getMoveTo() {
-		return moveTo;
+		return moveToNext;
 	}
 	
 	public ACLMessage getInterblocageMessage() {

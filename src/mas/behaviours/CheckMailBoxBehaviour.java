@@ -128,21 +128,21 @@ public class CheckMailBoxBehaviour extends Behaviour{
 		try {
 			//Graph fusion
 			//System.out.println(myAgent.getLocalName()+"******************MON GRAPHE AVANT FUSION");
-			graph.printNodes();
+//			graph.printNodes();
 			//System.out.println(myAgent.getLocalName()+"******************GRAPHE RECU");
-			((Graph)msg.getContentObject()).printNodes();
+//			((Graph)msg.getContentObject()).printNodes();
 			graph.fusion(((Graph)msg.getContentObject()));
 			//System.out.println(myAgent.getLocalName()+"******************NOUVEAU GRAPHE APRES FUSION");
-			graph.printNodes();
+//			graph.printNodes();
 			
 			//reply with an acknowledgement to the sender
 			
-			ACLMessage ackn=new ACLMessage(ACLMessage.CONFIRM);
-			ackn.setSender(this.myAgent.getAID());
-			ackn.addReceiver(msg.getSender());
-			ackn.setContent(Constants.MESSAGE_GRAPH_RECEIVED);
-			((mas.abstractAgent)this.myAgent).sendMessage(ackn);
-			//System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");
+//			ACLMessage ackn=new ACLMessage(ACLMessage.CONFIRM);
+//			ackn.setSender(this.myAgent.getAID());
+//			ackn.addReceiver(msg.getSender());
+//			ackn.setContent(Constants.MESSAGE_GRAPH_RECEIVED);
+//			((mas.abstractAgent)this.myAgent).sendMessage(ackn);
+//			//System.out.println(">>Agent : "+myAgent.getLocalName()+"  msg "+msg+" sent");
 			moveTo.replace(0, moveTo.length(), randomUnexplored());
 			
 		} catch (UnreadableException e) {

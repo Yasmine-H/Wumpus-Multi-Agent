@@ -37,7 +37,8 @@ public class BFSExploAgent extends abstractAgent{
 	private Graph graph;
 	private ArrayList<AID> receivers;
 	private ACLMessage interblocageMessage;
-	private StringBuilder moveTo;
+	private StringBuilder moveToNext;
+	private StringBuilder moveToGoal;
 	private StringBuilder previousState;
 	private boolean interblocageInCours;
 	//private String moveTo;
@@ -83,7 +84,8 @@ public class BFSExploAgent extends abstractAgent{
 		
 		graph = new Graph();
 		interblocageMessage = new ACLMessage(ACLMessage.REQUEST);
-		moveTo = new StringBuilder("");
+		moveToNext = new StringBuilder("");
+		moveToGoal = new StringBuilder("");
 		previousState = new StringBuilder("");
 		receivers = new ArrayList<>();
 		interblocageInCours = false;
@@ -118,13 +120,13 @@ public class BFSExploAgent extends abstractAgent{
 		};
 
 		
-		fsm.registerFirstState(new BFSWalkBehaviour(this, graph, moveTo, previousState), Constants.STATE_WALK);
+		fsm.registerFirstState(new BFSWalkBehaviour(this, graph, moveToNext, moveToGoal, previousState), Constants.STATE_WALK);
 		fsm.registerState(new SendGraphBehaviour(this, graph), Constants.STATE_GRAPH_TRANSMISSION);
-		fsm.registerState(new CheckMailBoxBehaviour(this, graph, new StringBuilder(Constants.STATE_WALK), previousState,/* graph_subscribers,*/ interblocageMessage, moveTo), Constants.STATE_CHECK_MAILBOX);
+		fsm.registerState(new CheckMailBoxBehaviour(this, graph, new StringBuilder(Constants.STATE_WALK), previousState,/* graph_subscribers,*/ interblocageMessage, moveToGoal), Constants.STATE_CHECK_MAILBOX);
 		
 		fsm.registerState(new SendInterblocageStartMessageBehaviour(this,graph, receivers, previousState), Constants.STATE_START_INTERBLOCAGE);
-		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, moveTo), Constants.STATE_INTERBLOCAGE_LISTENER);
-		fsm.registerState(new ExploInterblocageResolutionBehaviour(this, graph, interblocageMessage, moveTo), Constants.STATE_INTERBLOCAGE_RESOLUTION);
+		fsm.registerState(new InterblocageListenerBehaviour(this, graph, receivers, moveToNext), Constants.STATE_INTERBLOCAGE_LISTENER);
+		fsm.registerState(new ExploInterblocageResolutionBehaviour(this, graph, interblocageMessage, moveToNext), Constants.STATE_INTERBLOCAGE_RESOLUTION);
 
 		
 		//Se déplacer 
@@ -170,7 +172,7 @@ public class BFSExploAgent extends abstractAgent{
 	}
 
 	public StringBuilder getMoveTo() {
-		return moveTo;
+		return moveToNext;
 	}
 	
 	public ACLMessage getInterblocageMessage() {

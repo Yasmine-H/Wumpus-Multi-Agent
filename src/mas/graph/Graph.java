@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Random;
 
 import env.Attribute;
 
@@ -73,6 +74,36 @@ public class Graph implements Serializable{
 		}
 		return null;
 	}
+	
+	
+	public ArrayList<Node> getUnvisitedNodes(){
+		ArrayList<Node> unvisited_nodes = new ArrayList<>();
+		
+		for(Node node : graph){
+			if(!node.getVisited()){
+				unvisited_nodes.add(node);
+			}
+		}
+		
+		return unvisited_nodes;
+	}
+	
+	public Node getRandomUnvisited(){
+		
+		ArrayList<Node> unvisited_nodes = getUnvisitedNodes();
+		if(unvisited_nodes.size()==0){
+			return null;
+		}
+		
+		Random r= new Random();
+		int moveId=r.nextInt(unvisited_nodes.size());
+		
+		return unvisited_nodes.get(moveId);
+
+	}
+	
+	
+	
 	/**
 	 * @params currentNode : the node in which we are starting
 	 * @return : the nearest not visited node from the currentNode. Returns null if all nodes have been already visited.            
@@ -261,15 +292,17 @@ public class Graph implements Serializable{
 
 	public Node getBestNode(Node currentNode, String treasureType, int freeSpace){
 		Node bestNode = null;
+		printNodes();
 		double bestValue = 0; //defined as treasure value/distance
 		for(Node node : graph){
 			if(!node.equals(currentNode))
 			{
 				double nodeValue = getUtility(currentNode, node, treasureType, freeSpace); 
+				System.out.println("------->>Node : "+node.getId()+" value is : "+nodeValue);
 				if(nodeValue != 0 && (bestNode == null || bestValue < nodeValue)){
 					bestNode = node;
 					bestValue = nodeValue;
-					System.out.println("!!!!! new best node : "+node.getId()+" with value :: "+nodeValue);
+//					System.out.println("!!!!! new best node : "+node.getId()+" with value :: "+nodeValue);
 				}
 			}
 		}
@@ -278,11 +311,12 @@ public class Graph implements Serializable{
 	
 	
 	public double getUtility(Node currentNode, Node goalNode, String treasureType, int freeSpace){ //utility = (freeSpace - treasureValue)/distance
-		System.out.println(goalNode.getTreasureValue(treasureType));
-		System.out.println(">>>current "+currentNode.getId());
-		System.out.println(">>>goal : "+goalNode);
-		System.out.println(getPath(currentNode, goalNode));
+//		System.out.println(goalNode.getTreasureValue(treasureType));
+//		System.out.println(">>>current "+currentNode.getId());
+//		System.out.println(">>>goal : "+goalNode);
+//		System.out.println(getPath(currentNode, goalNode));
 		int difference = freeSpace - goalNode.getTreasureValue(treasureType) + 1;
+		System.out.println("difference is = "+difference);
 		if(difference == freeSpace + 1)
 		{
 			return 0;
@@ -381,7 +415,7 @@ public class Graph implements Serializable{
 		for(Node node : graph){
 			if(node.getContentList().isEmpty())
 			{
-				double value = node.getNeighbourhoodValue(new ArrayList<Node>());
+				double value = node.getNeighbourhoodValue(new ArrayList<Node>(), 1);
 //				System.out.println(">>>Meeting pos"+node.getId()+" final value is ::::::::::: "+value);
 				if(meetingNode == null || value > bestValue){
 					meetingNode = node;

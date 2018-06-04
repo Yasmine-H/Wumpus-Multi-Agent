@@ -44,7 +44,8 @@ public class CollectorInterblocageResolutionBehaviour extends Behaviour{
 		this.myPosition = ((abstractAgent) myAgent).getCurrentPosition();
 		System.out.println("INTERBLOCAGE msg : "+interblocageMessage.getContent());
 		analyzeMessage(interblocageMessage);
-		System.out.println(myAgent.getLocalName()+" : INTERBLOCAGE RESOLUTION Bevahivour*************************");
+		System.out.println(myAgent.getLocalName()+" at "+myPosition+" : INTERBLOCAGE RESOLUTION Bevahivour*************************");
+		System.out.println("********************* Sender type : "+senderType);
 		
 		//If I'm at the end of a blind lane (i.e., if my current node has only 1 neighbour), I can't give a priority!
 		if(graph.getNode(myPosition).getNeighbours().size() == 1) {
@@ -53,12 +54,15 @@ public class CollectorInterblocageResolutionBehaviour extends Behaviour{
 			response.addReceiver(sender);
 			response.setContent("INTERBLOCAGE: I'm in the blind line, I can't make way.");
 			((abstractAgent) myAgent).sendMessage(response);
+			System.out.println("------------------1");
 		}
 		
 		//If I'm not blocking him anymore - I've moved before reading his message:
 		//System.out.println("msg: "+interblocageMessage);
 		else if(!senderDesiredPosition.contains(myPosition)) { //TODO: 18.4.: I don't use equals because as senderDesiredPosition was retrieved from the message, I'm not sure if the string contains only 
-													      //what we want or also some spaces (or that kind of stuff) at its beginning/end.
+			
+			System.out.println("------------------2");
+			//what we want or also some spaces (or that kind of stuff) at its beginning/end.
 			//System.out.println(" xxxxxxxxxxxxxxx"+myAgent.getLocalName()+"  My position : "+myPosition+" sdp : "+senderDesiredPosition);
 			
 			//ACLMessage response =new ACLMessage(ACLMessage.AGREE);
@@ -72,6 +76,7 @@ public class CollectorInterblocageResolutionBehaviour extends Behaviour{
 		}
 		//If I don't know his desired position - I can't be blocking him ! (this should not appear though ... )
 		else if(graph.getNode(senderDesiredPosition) == null) {
+			System.out.println("------------------3");
 			ACLMessage response =new ACLMessage(ACLMessage.AGREE);
 			response.setSender(myAgent.getAID());
 			response.addReceiver(sender);
@@ -208,7 +213,7 @@ public class CollectorInterblocageResolutionBehaviour extends Behaviour{
 	private void twoCollectorsResolution() {
 		//If the graph is not fully explored:
 		//TODO 18.4.: We will start by graph exchange!
-		
+		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!TWO COLL");
 		//we check if someone is in the corridor:
 		if(meInCorridor() && himInCorridor()) {
 			//TODO 18.4.: The agent who is nearer the KNOWN crossroad has priority (in theory, both crossroads should be known as the agents are in conflits - they've come normally from 

@@ -42,22 +42,23 @@ public class ExploInterblocageResolutionBehaviour extends Behaviour{
 		this.sender = interblocageMessage.getSender();
 		this.myPosition = ((abstractAgent) myAgent).getCurrentPosition();
 		analyzeMessage(interblocageMessage);
-		System.out.println(myAgent.getLocalName()+" : INTERBLOCAGE RESOLUTION Bevahivour*************************");
+		System.out.println(myAgent.getLocalName()+" at "+myPosition+" :  INTERBLOCAGE RESOLUTION Bevahivour*************************");
 		
-		if(((BFSExploAgent)myAgent).getInterblocageInCours()) {
-			//ACLMessage response =new ACLMessage(ACLMessage.REFUSE);
-			//response.setSender(myAgent.getAID());
-			//response.addReceiver(sender);
-			//response.setContent("INTERBLOCAGE: in resolution, move to : "+moveTo.toString());
-			//((abstractAgent) myAgent).sendMessage(response);
-		}
-		//If I'm at the end of a blind lane (i.e., if my current node has only 1 neighbour), I can't give a priority!
-		else if(graph.getNode(myPosition).getNeighbours().size() == 1) {
+//		if(((BFSExploAgent)myAgent).getInterblocageInCours()) {
+//			//ACLMessage response =new ACLMessage(ACLMessage.REFUSE);
+//			//response.setSender(myAgent.getAID());
+//			//response.addReceiver(sender);
+//			//response.setContent("INTERBLOCAGE: in resolution, move to : "+moveTo.toString());
+//			//((abstractAgent) myAgent).sendMessage(response);
+//		}
+//		//If I'm at the end of a blind lane (i.e., if my current node has only 1 neighbour), I can't give a priority!
+		/*else*/ if(graph.getNode(myPosition).getNeighbours().size() == 1) {
 			ACLMessage response =new ACLMessage(ACLMessage.REFUSE);
 			response.setSender(myAgent.getAID());
 			response.addReceiver(sender);
 			response.setContent("INTERBLOCAGE: I'm in the blind line, I can't make way.");
 			((abstractAgent) myAgent).sendMessage(response);
+			System.out.println(myAgent.getLocalName()+" I only have one neighbour !");
 		}
 		
 		//If I'm not blocking him anymore - I've moved before reading his message:
@@ -73,10 +74,12 @@ public class ExploInterblocageResolutionBehaviour extends Behaviour{
 																							  //with AGREE, we just let him know that we would move, once the way is free, we should confirm it
 																							  //to him in GivePriorityBehaviour with an inform message - or not? It's to discuss!  
 			//((abstractAgent) myAgent).sendMessage(response);
+			System.out.println(senderDesiredPosition+" isnotmy pos : "+myPosition);
 			//System.out.println(";;;;;;;;;;;;;;;;;;; >>Agent : "+myAgent.getLocalName()+"  msg "+response+" sent to "+sender+";;;;;;;;;;;;;;;;;;;;;;");
 		}
 		//If I don't know his desired position - I can't be blocking him ! (this should not appear though ... )
 		else if(graph.getNode(senderDesiredPosition) == null) {
+			System.out.println(myAgent.getLocalName()+" node is null ! "+senderDesiredPosition);
 			ACLMessage response =new ACLMessage(ACLMessage.AGREE);
 			response.setSender(myAgent.getAID());
 			response.addReceiver(sender);
@@ -88,12 +91,15 @@ public class ExploInterblocageResolutionBehaviour extends Behaviour{
 		
 		//else - we are really in interblocage
 		else if(senderType.contains("EXPLO")) {
+			System.out.println(myAgent.getLocalName()+" Two explorers");
 			twoExplorersResolution();
 		}
 		else if(senderType.contains("COLL")) { //TODO 18.4.: When the collector is created
+			System.out.println(myAgent.getLocalName()+" explo-coll");
 			explorerCollectorResolution();
 		}
 		else if(senderType.contains("SILO")) {
+			System.out.println(myAgent.getLocalName()+" explo-tank");
 			explorateurSiloResolution();
 		}
 	}
@@ -416,6 +422,36 @@ public class ExploInterblocageResolutionBehaviour extends Behaviour{
 		//If agents aren't in the corridor:
 		//If the graph is not fully explored, it is the explorer who has priority
 				else if(!graphFullyExplored()) {
+					
+					
+//					ArrayList<Node>  neighbours = graph.getNode(myPosition).getNeighbours();
+//					//neighbours.remove(senderDesiredPosition);
+//					//int index = (int)(Math.random()*neighbours.size());
+//					//moveTo.replace(0, moveTo.length(), neighbours.get(index).getId());
+//					
+//					/*
+//					for(Node node :neighbours) {
+//						if(!node.getId().equalsIgnoreCase(senderDesiredPosition)) {
+//							moveTo.replace(0, moveTo.length(), node.getId());
+//						}
+//					}
+//					*/
+//					ACLMessage response =new ACLMessage(ACLMessage.AGREE);
+//					response.setSender(myAgent.getAID());
+//					response.addReceiver(sender);
+//					response.setContent("INTERBLOCAGE: I'm nearer the crossroad - you have priority, I will make you a way.");
+//					((abstractAgent) myAgent).sendMessage(response);
+//					
+//					for(Node node :neighbours) {
+//						if(!node.getId().equalsIgnoreCase(senderDesiredPosition)) {
+//							boolean moved = ((mas.abstractAgent)this.myAgent).moveTo(node.getId()); //moveTo.replace(0, moveTo.length(), node.getId());
+//							if(moved) {
+//								break;
+//							}
+//						}
+//					}
+					
+//					MAGGIE!!!
 					ACLMessage response =new ACLMessage(ACLMessage.REFUSE);
 					response.setSender(myAgent.getAID());
 					response.addReceiver(sender);
@@ -534,13 +570,41 @@ public class ExploInterblocageResolutionBehaviour extends Behaviour{
 						//If agents aren't in the corridor:
 						//If the graph is not fully explored, it is the explorer who has priority
 						else if(!graphFullyExplored()) {
+							
+//							ArrayList<Node>  neighbours = graph.getNode(myPosition).getNeighbours();
+//							//neighbours.remove(senderDesiredPosition);
+//							//int index = (int)(Math.random()*neighbours.size());
+//							//moveTo.replace(0, moveTo.length(), neighbours.get(index).getId());
+//							
+//							/*
+//							for(Node node :neighbours) {
+//								if(!node.getId().equalsIgnoreCase(senderDesiredPosition)) {
+//									moveTo.replace(0, moveTo.length(), node.getId());
+//								}
+//							}
+//							*/
+//							ACLMessage response =new ACLMessage(ACLMessage.AGREE);
+//							response.setSender(myAgent.getAID());
+//							response.addReceiver(sender);
+//							response.setContent("INTERBLOCAGE: I'm nearer the crossroad - you have priority, I will make you a way.");
+//							((abstractAgent) myAgent).sendMessage(response);
+//							
+//							for(Node node :neighbours) {
+//								if(!node.getId().equalsIgnoreCase(senderDesiredPosition)) {
+//									boolean moved = ((mas.abstractAgent)this.myAgent).moveTo(node.getId()); //moveTo.replace(0, moveTo.length(), node.getId());
+//									if(moved) {
+//										break;
+//									}
+//								}
+//							}
+//							MAGGIE!!!!
 							ACLMessage response =new ACLMessage(ACLMessage.REFUSE);
 							response.setSender(myAgent.getAID());
 							response.addReceiver(sender);
 							response.setContent("INTERBLOCAGE: The graph is not fully explored and you are a silo - I have a priority.");
 							((abstractAgent) myAgent).sendMessage(response);
-					
-							
+//					
+//							
 						}
 						else { //Otherwise, it's collector who has priority
 							ACLMessage response =new ACLMessage(ACLMessage.AGREE);

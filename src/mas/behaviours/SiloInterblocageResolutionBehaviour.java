@@ -4,17 +4,18 @@ import java.util.ArrayList;
 
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import mas.abstractAgent;
 import mas.graph.Graph;
 import mas.graph.Node;
-import mas.agents.BFSExploAgent;
-import mas.agents.CollectorAgent;
 import mas.agents.SiloAgent;
 
 public class SiloInterblocageResolutionBehaviour extends Behaviour{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5462135503001400366L;
 	private Graph graph;
 	private ACLMessage interblocageMessage;
 	private AID sender;
@@ -45,7 +46,7 @@ public class SiloInterblocageResolutionBehaviour extends Behaviour{
 		this.myPosition = ((abstractAgent) myAgent).getCurrentPosition();
 		System.out.println("INTERBLOCAGE msg : "+interblocageMessage.getContent());
 		analyzeMessage(interblocageMessage);
-		System.out.println(myAgent.getLocalName()+" : INTERBLOCAGE RESOLUTION Bevahivour*************************");
+		System.out.println(myAgent.getLocalName()+" at "+myPosition+" : INTERBLOCAGE RESOLUTION Bevahivour*************************");
 		
 		//If I'm at the end of a blind lane (i.e., if my current node has only 1 neighbour), I can't give a priority!
 		if(graph.getNode(myPosition).getNeighbours().size() == 1) {
@@ -70,6 +71,7 @@ public class SiloInterblocageResolutionBehaviour extends Behaviour{
 																							  //to him in GivePriorityBehaviour with an inform message - or not? It's to discuss!  
 			//((abstractAgent) myAgent).sendMessage(response);
 			//System.out.println(";;;;;;;;;;;;;;;;;;; >>Agent : "+myAgent.getLocalName()+"  msg "+response+" sent to "+sender+";;;;;;;;;;;;;;;;;;;;;;");
+			System.out.println("SILO : not my position mate!! "+myPosition+" he wants to move to "+senderDesiredPosition);
 		}
 		//If I don't know his desired position - I can't be blocking him ! (this should not appear though ... )
 		else if(graph.getNode(senderDesiredPosition) == null) {
@@ -77,6 +79,7 @@ public class SiloInterblocageResolutionBehaviour extends Behaviour{
 			//response.setSender(myAgent.getAID());
 			//response.addReceiver(sender);
 			//response.setContent("INTERBLOCAGE: I'm not blocking you anymore, you can move!");
+			System.out.println("SILO : your position is null mate!! "+myPosition+" he wants to move to "+senderDesiredPosition);
 			//((abstractAgent) myAgent).sendMessage(response);
 		}
 		
